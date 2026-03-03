@@ -41,6 +41,11 @@ BANS = {}
 WARNS = {}
 MAX_WARNS = 3
 
+# Хранилище для игр
+loader_games = {}
+courier_games = {}
+programmer_games = {}
+
 # ========== БАЗА ДАННЫХ ==========
 def get_db():
     conn = sqlite3.connect(DB_PATH)
@@ -1259,8 +1264,6 @@ def start_loader_game(user_id, job_name):
     """Игра для грузчика - собирай коробки"""
     
     # Создаем поле 3x3 с коробками
-    boxes = list(range(1, 10))
-    random.shuffle(boxes)
     target_boxes = random.sample(range(1, 10), 3)  # 3 цели
     
     markup = types.InlineKeyboardMarkup(row_width=3)
@@ -1273,7 +1276,6 @@ def start_loader_game(user_id, job_name):
             row = []
     
     game_data = {
-        'boxes': boxes,
         'targets': target_boxes,
         'collected': [],
         'start_time': time.time()
@@ -1346,7 +1348,7 @@ def check_courier_choice(user_id, is_correct, route_time):
     time_spent = time.time() - courier_games[user_id]['start_time']
     del courier_games[user_id]
     
-    if is_correct == 'True' and time_spent <= route_time:
+    if is_correct == 'True' and time_spent <= int(route_time):
         return {'win': True, 'time': time_spent, 'score': 100}
     else:
         return {'win': False, 'time': time_spent, 'score': 0}
@@ -1541,11 +1543,6 @@ def send_top_to_chat(chat_id):
     except Exception as e:
         print(f"Ошибка топа: {e}")
         bot.send_message(chat_id, "❌ Ошибка загрузки топа")
-
-# ========== ХРАНИЛИЩЕ ДЛЯ ИГР ==========
-loader_games = {}
-courier_games = {}
-programmer_games = {}
 
 # ========== АДМИН КОМАНДЫ ==========
 @bot.message_handler(commands=['adminhelp'])
@@ -2215,7 +2212,7 @@ def send_top_by_type(user_id, top_type):
         print(f"Ошибка топа: {e}")
         bot.send_message(user_id, "❌ Ошибка загрузки топа")
 
-# ========== КЛАВИАТУРЫ ==========
+# ========== ИСПРАВЛЕННАЯ КЛАВИАТУРА ==========
 def main_keyboard():
     markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
     markup.row(
@@ -2227,11 +2224,11 @@ def main_keyboard():
         types.KeyboardButton("🏙️ ГОРОДА")
     )
     markup.row(
-        types.KeyboardButton("🎁 Ежедневно"),
-        types.KeyboardButton("⚙️ Настройки")
+        types.KeyboardButton("👕 Магазин одежды"),
+        types.KeyboardButton("🎁 Ежедневно")
     )
     markup.row(
-        types.KeyboardButton("👕 МАГАЗИН ОДЕЖДЫ"),
+        types.KeyboardButton("⚙️ Настройки"),
         types.KeyboardButton("🔄")
     )
     return markup
@@ -2299,7 +2296,7 @@ def jobs_keyboard(user_id):
     markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
     
     for job in jobs:
-        markup.add(types.KeyboardButton(f"{job[5]} {job[0]}"))
+        markup.add(types.KeyboardButton(job[0]))  # job[0] - это полное название с эмодзи
     
     markup.row(types.KeyboardButton("🔙 Назад"))
     return markup
@@ -2739,7 +2736,7 @@ def callback_handler(call):
             
             add_balance(user_id, total)
             add_exp(user_id, exp_reward)
-            update_work_stats(user_id, "Грузчик", result['score'], result['time'], total)
+            update_work_stats(user_id, "🚚 Грузчик", result['score'], result['time'], total)
             
             bot.edit_message_text(
                 f"✅ **ПОБЕДА!**\n\n"
@@ -2756,7 +2753,7 @@ def callback_handler(call):
     elif data.startswith("courier_"):
         parts = data.split("_")
         is_correct = parts[1]
-        route_time = int(parts[2])
+        route_time = parts[2]
         
         result = check_courier_choice(user_id, is_correct, route_time)
         
@@ -2772,7 +2769,7 @@ def callback_handler(call):
             
             add_balance(user_id, total)
             add_exp(user_id, exp_reward)
-            update_work_stats(user_id, "Курьер", result['score'], result['time'], total)
+            update_work_stats(user_id, "📦 Курьер", result['score'], result['time'], total)
             
             bot.edit_message_text(
                 f"✅ **ДОСТАВЛЕНО!**\n\n"
@@ -2808,7 +2805,7 @@ def callback_handler(call):
             
             add_balance(user_id, total)
             add_exp(user_id, exp_reward)
-            update_work_stats(user_id, "Программист", result['score'], result['time'], total)
+            update_work_stats(user_id, "💻 Программист", result['score'], result['time'], total)
             
             bot.edit_message_text(
                 f"✅ **БАГ ИСПРАВЛЕН!**\n\n"
@@ -2937,6 +2934,7 @@ def handle(message):
     user_data = get_user_profile(user_id)
     display_name = get_user_display_name(user_data) if user_data else "Игрок"
     
+    # Проверка активных поездок
     active_travel = get_active_travel(user_id)
     if active_travel:
         end_time = datetime.fromisoformat(active_travel['end_time'])
@@ -2950,7 +2948,29 @@ def handle(message):
             )
             return
     
-    if text == "🏙️ ГОРОДА":
+    # ===== ОСНОВНЫЕ КНОПКИ МЕНЮ =====
+    if text == "💼 Работы":
+        bot.send_message(user_id, "🔨 Выбери работу:", reply_markup=jobs_keyboard(user_id))
+    
+    elif text == "🏭 Бизнесы":
+        bot.send_message(user_id, "🏪 Управление бизнесом:", reply_markup=businesses_main_keyboard())
+    
+    elif text == "📊 Статистика":
+        exp, level, work_count, total = get_user_stats(user_id)
+        equipped = get_user_equipped_clothes(user_id)
+        clothes_info = f", одет: {equipped['name']}" if equipped else ""
+        current_city = get_user_city(user_id)
+        
+        msg = f"📊 **СТАТИСТИКА**\n\n"
+        msg += f"👤 Игрок: {display_name}{clothes_info}\n"
+        msg += f"📍 Город: {current_city}\n"
+        msg += f"⭐ Опыт: {exp}\n"
+        msg += f"📈 Уровень: {level}\n"
+        msg += f"🔨 Работ: {work_count}\n"
+        msg += f"💰 Всего заработано: {total:,}"
+        bot.send_message(user_id, msg, parse_mode="Markdown")
+    
+    elif text == "🏙️ ГОРОДА":
         markup = cities_keyboard()
         bot.send_message(
             user_id,
@@ -2979,10 +2999,10 @@ def handle(message):
             bot.register_next_step_handler(message, process_travel, city_name)
     
     elif text in ["🚕 Такси", "🚗 Личная машина", "✈️ Личный самолет"]:
+        # Этот текст обрабатывается в process_travel
         pass
     
-    # ===== МАГАЗИНЫ =====
-    elif text.lower() == "👕 магазин одежды":
+    elif text == "👕 Магазин одежды":
         clothes, current_page, total = get_clothes_page(0)
         
         if clothes:
@@ -3007,93 +3027,11 @@ def handle(message):
         else:
             bot.send_message(user_id, "❌ В магазине пока нет товаров!")
     
-    elif text.lower() == "🏠 магазин домов":
+    elif text == "🏠 Магазин домов":
         bot.send_message(user_id, "🏠 Магазин домов скоро откроется! Следи за обновлениями!")
     
-    elif text.lower() == "✈️ магазин самолетов":
+    elif text == "✈️ Магазин самолетов":
         bot.send_message(user_id, "✈️ Магазин самолетов скоро откроется! Следи за обновлениями!")
-    
-    # ===== ИСПРАВЛЕННАЯ КНОПКА ОБНОВЛЕНИЯ =====
-    elif text == "🔄":
-        # Только показываем профиль, не трогаем меню города
-        user_data = get_user_profile(user_id)
-        if user_data:
-            balance = get_balance(user_id)
-            display_name = get_user_display_name(user_data)
-            photo_url = get_user_profile_photo(user_id)
-            
-            caption = (f"👤 *{display_name}*\n\n"
-                       f"💰 Баланс: {balance:,} {CURRENCY}")
-            
-            bot.send_photo(
-                user_id,
-                photo_url,
-                caption=caption,
-                parse_mode="Markdown"
-            )
-        else:
-            bot.send_message(user_id, "❌ Ошибка загрузки профиля")
-    
-    # ===== РАБОТЫ С МИНИ-ИГРАМИ =====
-    elif text == "💼 Работы":
-        bot.send_message(user_id, "🔨 Выбери работу:", reply_markup=jobs_keyboard(user_id))
-    
-    elif text in ["🚚 Грузчик", "🧹 Уборщик", "📦 Курьер", "🔧 Механик", "💻 Программист", "🕵️ Детектив", "👨‍🔧 Инженер", "👨‍⚕️ Врач", "👨‍🎤 Артист", "👨‍🚀 Космонавт"]:
-        job_name = text
-        
-        if "Грузчик" in job_name:
-            markup, msg = start_loader_game(user_id, job_name)
-            bot.send_message(user_id, msg, reply_markup=markup)
-        
-        elif "Курьер" in job_name:
-            markup, msg = start_courier_game(user_id, job_name)
-            bot.send_message(user_id, msg, reply_markup=markup)
-        
-        elif "Программист" in job_name:
-            markup, msg = start_programmer_game(user_id, job_name)
-            bot.send_message(user_id, msg, parse_mode="Markdown", reply_markup=markup)
-        
-        else:
-            # Для остальных работ пока старая система
-            rewards = {
-                "🚚 Грузчик": (10, 50, 5),
-                "🧹 Уборщик": (15, 70, 7),
-                "📦 Курьер": (20, 100, 10),
-                "🔧 Механик": (30, 150, 12),
-                "💻 Программист": (50, 300, 15),
-                "🕵️ Детектив": (100, 500, 20),
-                "👨‍🔧 Инженер": (200, 800, 25),
-                "👨‍⚕️ Врач": (300, 1200, 30),
-                "👨‍🎤 Артист": (500, 2000, 35),
-                "👨‍🚀 Космонавт": (1000, 5000, 50)
-            }
-            
-            min_r, max_r, exp_r = rewards[job_name]
-            earn = random.randint(min_r, max_r)
-            
-            if add_balance(user_id, earn) and add_exp(user_id, exp_r):
-                bot.send_message(user_id, f"✅ {job_name}\n💰 +{earn}\n⭐ +{exp_r} опыта")
-            else:
-                bot.send_message(user_id, "❌ Ошибка, попробуй позже")
-    
-    # ===== БИЗНЕСЫ =====
-    elif text == "🏭 Бизнесы":
-        bot.send_message(user_id, "🏪 Управление бизнесом:", reply_markup=businesses_main_keyboard())
-    
-    elif text == "📊 Статистика":
-        exp, level, work_count, total = get_user_stats(user_id)
-        equipped = get_user_equipped_clothes(user_id)
-        clothes_info = f", одет: {equipped['name']}" if equipped else ""
-        current_city = get_user_city(user_id)
-        
-        msg = f"📊 **СТАТИСТИКА**\n\n"
-        msg += f"👤 Игрок: {display_name}{clothes_info}\n"
-        msg += f"📍 Город: {current_city}\n"
-        msg += f"⭐ Опыт: {exp}\n"
-        msg += f"📈 Уровень: {level}\n"
-        msg += f"🔨 Работ: {work_count}\n"
-        msg += f"💰 Всего заработано: {total:,}"
-        bot.send_message(user_id, msg, parse_mode="Markdown")
     
     elif text == "🎁 Ежедневно":
         try:
@@ -3129,6 +3067,69 @@ def handle(message):
     elif text == "⚙️ Настройки":
         bot.send_message(user_id, "🔧 **НАСТРОЙКИ**\n\nВыбери что хочешь изменить:", reply_markup=settings_keyboard(), parse_mode="Markdown")
     
+    elif text == "🔄":
+        # Показываем профиль
+        user_data = get_user_profile(user_id)
+        if user_data:
+            balance = get_balance(user_id)
+            display_name = get_user_display_name(user_data)
+            photo_url = get_user_profile_photo(user_id)
+            
+            caption = (f"👤 *{display_name}*\n\n"
+                       f"💰 Баланс: {balance:,} {CURRENCY}")
+            
+            bot.send_photo(
+                user_id,
+                photo_url,
+                caption=caption,
+                parse_mode="Markdown"
+            )
+        else:
+            bot.send_message(user_id, "❌ Ошибка загрузки профиля")
+    
+    # ===== РАБОТЫ С МИНИ-ИГРАМИ =====
+    elif text in ["🚚 Грузчик", "🧹 Уборщик", "📦 Курьер", "🔧 Механик", "💻 Программист", "🕵️ Детектив", "👨‍🔧 Инженер", "👨‍⚕️ Врач", "👨‍🎤 Артист", "👨‍🚀 Космонавт"]:
+        job_name = text
+        
+        if "Грузчик" in job_name:
+            markup, msg = start_loader_game(user_id, job_name)
+            bot.send_message(user_id, msg, parse_mode="Markdown", reply_markup=markup)
+        
+        elif "Курьер" in job_name:
+            markup, msg = start_courier_game(user_id, job_name)
+            bot.send_message(user_id, msg, parse_mode="Markdown", reply_markup=markup)
+        
+        elif "Программист" in job_name:
+            markup, msg = start_programmer_game(user_id, job_name)
+            bot.send_message(user_id, msg, parse_mode="Markdown", reply_markup=markup)
+        
+        else:
+            # Для остальных работ пока старая система
+            rewards = {
+                "🚚 Грузчик": (10, 50, 5),
+                "🧹 Уборщик": (15, 70, 7),
+                "📦 Курьер": (20, 100, 10),
+                "🔧 Механик": (30, 150, 12),
+                "💻 Программист": (50, 300, 15),
+                "🕵️ Детектив": (100, 500, 20),
+                "👨‍🔧 Инженер": (200, 800, 25),
+                "👨‍⚕️ Врач": (300, 1200, 30),
+                "👨‍🎤 Артист": (500, 2000, 35),
+                "👨‍🚀 Космонавт": (1000, 5000, 50)
+            }
+            
+            if job_name in rewards:
+                min_r, max_r, exp_r = rewards[job_name]
+                earn = random.randint(min_r, max_r)
+                
+                if add_balance(user_id, earn) and add_exp(user_id, exp_r):
+                    bot.send_message(user_id, f"✅ {job_name}\n💰 +{earn}\n⭐ +{exp_r} опыта")
+                else:
+                    bot.send_message(user_id, "❌ Ошибка, попробуй позже")
+            else:
+                bot.send_message(user_id, "❌ Работа не найдена")
+    
+    # ===== НАСТРОЙКИ =====
     elif text == "✏️ Сменить никнейм":
         current_nick = display_name if display_name != "Игрок" else "Не установлен"
         msg = bot.send_message(
@@ -3148,7 +3149,7 @@ def handle(message):
             "📚 **ПОЛНОЕ РУКОВОДСТВО ПО ИГРЕ** 📚\n\n"
             "💼 **РАБОТЫ**\n"
             "• Доступно 10 видов работ\n"
-            "• Некоторые работы теперь с мини-играми!\n"
+            "• Некоторые работы с мини-играми!\n"
             "• Чем лучше сыграешь - тем больше денег\n"
             "• Работы можно выполнять бесконечно\n\n"
             "🏭 **БИЗНЕСЫ**\n"
@@ -3158,12 +3159,6 @@ def handle(message):
             "• Склад вмещает максимум 1000 сырья\n"
             "• Доставка сырья - 15 минут\n"
             "• Прибыль накапливается на складе, нужно собирать вручную\n\n"
-            "📊 **ДАННЫЕ БИЗНЕСОВ**\n"
-            "🥤 Киоск - 500к | 1 сырьё = 1.000💰 | профит 2.000💰\n"
-            "🍔 Фастфуд - 5M | 1 сырьё = 2.500💰 | профит 5.000💰\n"
-            "🏪 Минимаркет - 15M | 1 сырьё = 30.000💰 | профит 60.000💰\n"
-            "⛽ Заправка - 50M | 1 сырьё = 200.000💰 | профит 400.000💰\n"
-            "🏨 Отель - 1B | 1 сырьё = 1.000.000💰 | профит 2.000.000💰\n\n"
             "🏙️ **ГОРОДА**\n"
             "• Можно путешествовать между 4 городами\n"
             "• В каждом городе свои магазины\n"
@@ -3399,6 +3394,11 @@ def handle(message):
                 f"🏙️ Ты в городе {current_city}",
                 reply_markup=city_menu_keyboard(current_city)
             )
+    
+    else:
+        # Если текст не распознан, показываем помощь
+        help_text = "🤖 **НЕИЗВЕСТНАЯ КОМАНДА**\n\nИспользуй кнопки меню или /start"
+        bot.send_message(user_id, help_text, parse_mode="Markdown")
 
 def process_travel(message, target_city):
     user_id = message.from_user.id
@@ -3628,5 +3628,5 @@ print("📸 Фото для бизнесов загружены!")
 print("🎮 Мини-игры для работ активированы! (Грузчик, Курьер, Программист)")
 print("📌 Админ команды: /adminhelp")
 print("📢 Команды для чата: я, топ, сырье все")
-print("🔄 - показать профиль (не трогает меню)")
+print("🔄 - показать профиль")
 bot.infinity_polling()
