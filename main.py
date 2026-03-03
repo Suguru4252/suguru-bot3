@@ -2221,15 +2221,15 @@ def main_keyboard():
     )
     markup.row(
         types.KeyboardButton("📊 Статистика"),
-        types.KeyboardButton("🏙️ ГОРОДА")
+        types.KeyboardButton("👕 Магазин одежды")
     )
     markup.row(
-        types.KeyboardButton("👕 Магазин одежды"),
-        types.KeyboardButton("🎁 Ежедневно")
+        types.KeyboardButton("🎁 Ежедневно"),
+        types.KeyboardButton("⚙️ Настройки")
     )
     markup.row(
-        types.KeyboardButton("⚙️ Настройки"),
-        types.KeyboardButton("🔄")
+        types.KeyboardButton("🗺️ Карта городов"),
+        types.KeyboardButton("🔄 Обновить")
     )
     return markup
 
@@ -2263,6 +2263,7 @@ def city_menu_keyboard(city_name):
     
     city_info = get_city_info(city_name)
     
+    # В каждом городе доступны базовые функции
     markup.row(
         types.KeyboardButton("💼 Работы"),
         types.KeyboardButton("🏭 Бизнесы")
@@ -2272,6 +2273,7 @@ def city_menu_keyboard(city_name):
         types.KeyboardButton("👕 Магазин одежды")
     )
     
+    # Дополнительные магазины, если есть в городе
     extra_buttons = []
     if city_info and city_info['has_house_shop']:
         extra_buttons.append("🏠 Магазин домов")
@@ -2286,8 +2288,8 @@ def city_menu_keyboard(city_name):
         types.KeyboardButton("⚙️ Настройки")
     )
     markup.row(
-        types.KeyboardButton("🔙 Назад"),
-        types.KeyboardButton("🔄")
+        types.KeyboardButton("🗺️ Карта городов"),
+        types.KeyboardButton("🔄 Обновить")
     )
     return markup
 
@@ -2383,7 +2385,7 @@ def start(message):
             "🎮 Здесь ты сможешь:\n"
             "💼 **Работать** в мини-играх и зарабатывать деньги\n"
             "🏭 **Покупать бизнесы** и получать пассивный доход\n"
-            "🏙️ **Путешествовать по городам** и открывать новые магазины\n"
+            "🗺️ **Путешествовать по городам** и открывать новые магазины\n"
             "👕 **Покупать крутую одежду** и менять свой стиль\n"
             "🎰 **Играть в рулетку** и выигрывать миллионы\n"
             "🏆 **Соревноваться** с другими игроками (/top)\n\n"
@@ -2970,38 +2972,6 @@ def handle(message):
         msg += f"💰 Всего заработано: {total:,}"
         bot.send_message(user_id, msg, parse_mode="Markdown")
     
-    elif text == "🏙️ ГОРОДА":
-        markup = cities_keyboard()
-        bot.send_message(
-            user_id,
-            "🏙️ **ВЫБЕРИ ГОРОД**\n\n"
-            "Куда хочешь отправиться?",
-            parse_mode="Markdown",
-            reply_markup=markup
-        )
-    
-    elif text in ["🏙️ Кропоткин", "🏙️ Москва", "🏙️ Мурино", "🏙️ Село Молочное"]:
-        city_name = text.replace("🏙️ ", "")
-        current_city = get_user_city(user_id)
-        
-        if city_name == current_city:
-            bot.send_message(
-                user_id,
-                f"🏙️ Ты уже находишься в городе {city_name}",
-                reply_markup=city_menu_keyboard(city_name)
-            )
-        else:
-            bot.send_message(
-                user_id,
-                f"🚀 Выбери транспорт для поездки в {city_name}:",
-                reply_markup=transport_keyboard(city_name)
-            )
-            bot.register_next_step_handler(message, process_travel, city_name)
-    
-    elif text in ["🚕 Такси", "🚗 Личная машина", "✈️ Личный самолет"]:
-        # Этот текст обрабатывается в process_travel
-        pass
-    
     elif text == "👕 Магазин одежды":
         clothes, current_page, total = get_clothes_page(0)
         
@@ -3026,12 +2996,6 @@ def handle(message):
             )
         else:
             bot.send_message(user_id, "❌ В магазине пока нет товаров!")
-    
-    elif text == "🏠 Магазин домов":
-        bot.send_message(user_id, "🏠 Магазин домов скоро откроется! Следи за обновлениями!")
-    
-    elif text == "✈️ Магазин самолетов":
-        bot.send_message(user_id, "✈️ Магазин самолетов скоро откроется! Следи за обновлениями!")
     
     elif text == "🎁 Ежедневно":
         try:
@@ -3067,16 +3031,29 @@ def handle(message):
     elif text == "⚙️ Настройки":
         bot.send_message(user_id, "🔧 **НАСТРОЙКИ**\n\nВыбери что хочешь изменить:", reply_markup=settings_keyboard(), parse_mode="Markdown")
     
-    elif text == "🔄":
-        # Показываем профиль
+    elif text == "🗺️ Карта городов":
+        markup = cities_keyboard()
+        bot.send_message(
+            user_id,
+            "🗺️ **КАРТА ГОРОДОВ**\n\n"
+            "Выбери город, в который хочешь отправиться:",
+            parse_mode="Markdown",
+            reply_markup=markup
+        )
+    
+    elif text == "🔄 Обновить":
+        # Обновляем только сообщение с профилем
         user_data = get_user_profile(user_id)
         if user_data:
             balance = get_balance(user_id)
             display_name = get_user_display_name(user_data)
-            photo_url = get_user_profile_photo(user_id)
+            current_city = get_user_city(user_id)
             
             caption = (f"👤 *{display_name}*\n\n"
-                       f"💰 Баланс: {balance:,} {CURRENCY}")
+                       f"💰 Баланс: {balance:,} {CURRENCY}\n"
+                       f"📍 Город: {current_city}")
+            
+            photo_url = get_user_profile_photo(user_id)
             
             bot.send_photo(
                 user_id,
@@ -3086,6 +3063,35 @@ def handle(message):
             )
         else:
             bot.send_message(user_id, "❌ Ошибка загрузки профиля")
+    
+    # ===== ГОРОДА =====
+    elif text in ["🏙️ Кропоткин", "🏙️ Москва", "🏙️ Мурино", "🏙️ Село Молочное"]:
+        city_name = text.replace("🏙️ ", "")
+        current_city = get_user_city(user_id)
+        
+        if city_name == current_city:
+            bot.send_message(
+                user_id,
+                f"🏙️ Ты уже находишься в городе {city_name}",
+                reply_markup=city_menu_keyboard(city_name)
+            )
+        else:
+            bot.send_message(
+                user_id,
+                f"🚀 Выбери транспорт для поездки в {city_name}:",
+                reply_markup=transport_keyboard(city_name)
+            )
+            bot.register_next_step_handler(message, process_travel, city_name)
+    
+    elif text in ["🚕 Такси", "🚗 Личная машина", "✈️ Личный самолет"]:
+        # Этот текст обрабатывается в process_travel
+        pass
+    
+    elif text == "🏠 Магазин домов":
+        bot.send_message(user_id, "🏠 Магазин домов скоро откроется! Следи за обновлениями!")
+    
+    elif text == "✈️ Магазин самолетов":
+        bot.send_message(user_id, "✈️ Магазин самолетов скоро откроется! Следи за обновлениями!")
     
     # ===== РАБОТЫ С МИНИ-ИГРАМИ =====
     elif text in ["🚚 Грузчик", "🧹 Уборщик", "📦 Курьер", "🔧 Механик", "💻 Программист", "🕵️ Детектив", "👨‍🔧 Инженер", "👨‍⚕️ Врач", "👨‍🎤 Артист", "👨‍🚀 Космонавт"]:
@@ -3159,7 +3165,7 @@ def handle(message):
             "• Склад вмещает максимум 1000 сырья\n"
             "• Доставка сырья - 15 минут\n"
             "• Прибыль накапливается на складе, нужно собирать вручную\n\n"
-            "🏙️ **ГОРОДА**\n"
+            "🗺️ **ГОРОДА**\n"
             "• Можно путешествовать между 4 городами\n"
             "• В каждом городе свои магазины\n"
             "• Время в пути: 30-60 секунд\n"
@@ -3189,14 +3195,14 @@ def handle(message):
         help_text = "🤖 **ПОМОЩЬ**\n\n"
         help_text += "💼 Работы - работай в мини-играх\n"
         help_text += "🏭 Бизнесы - управление бизнесом\n"
-        help_text += "🏙️ Города - путешествуй между городами\n"
+        help_text += "🗺️ Карта городов - путешествуй между городами\n"
         help_text += "👕 Магазин одежды - покупай крутые комплекты\n"
         help_text += "🎰 Рулетка - играй в чате: рул крас 1000\n"
         help_text += "📊 Статистика - твои показатели\n"
         help_text += "🏆 Топ 10 - лучшие игроки (команда /top)\n"
         help_text += "🎁 Ежедневно - бонус каждый день\n"
         help_text += "⚙️ Настройки - изменить никнейм и полная помощь\n"
-        help_text += "🔄 - показать твой профиль"
+        help_text += "🔄 Обновить - обновить профиль"
         
         level = get_admin_level(user_id)
         if level > 0:
@@ -3385,15 +3391,8 @@ def handle(message):
                 add_balance(user_id, price)
     
     elif text == "🔙 Назад":
-        if "🏙️" in text or "🚕" in text or "🚗" in text or "✈️" in text:
-            send_main_menu_with_profile(user_id)
-        else:
-            current_city = get_user_city(user_id)
-            bot.send_message(
-                user_id,
-                f"🏙️ Ты в городе {current_city}",
-                reply_markup=city_menu_keyboard(current_city)
-            )
+        # Возвращаемся в главное меню
+        send_main_menu_with_profile(user_id)
     
     else:
         # Если текст не распознан, показываем помощь
@@ -3459,7 +3458,7 @@ def process_travel(message, target_city):
         bot.send_message(user_id, msg)
         bot.send_message(
             user_id,
-            "🏙️ Выбери город:",
+            "🗺️ Выбери город:",
             reply_markup=cities_keyboard()
         )
 
@@ -3628,5 +3627,5 @@ print("📸 Фото для бизнесов загружены!")
 print("🎮 Мини-игры для работ активированы! (Грузчик, Курьер, Программист)")
 print("📌 Админ команды: /adminhelp")
 print("📢 Команды для чата: я, топ, сырье все")
-print("🔄 - показать профиль")
+print("🔄 Обновить - обновляет профиль")
 bot.infinity_polling()
