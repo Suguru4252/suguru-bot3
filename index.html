@@ -119,31 +119,7 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
-        }
-
-        .photo-area {
-            background: #0a0512;
-            border-radius: 32px;
-            min-height: 380px;
-            display: flex;
-            align-items: center;
             justify-content: center;
-            border: 1px solid rgba(255,70,110,0.6);
-            background-image: radial-gradient(circle at 30% 20%, rgba(255,70,120,0.1) 2%, transparent 2.5%);
-            background-size: 28px 28px;
-        }
-
-        .photo-placeholder {
-            text-align: center;
-            color: #ff8aac;
-            padding: 40px;
-        }
-
-        .main-img {
-            max-width: 100%;
-            max-height: 360px;
-            border-radius: 24px;
-            object-fit: contain;
         }
 
         .action-buttons {
@@ -162,12 +138,18 @@
             font-weight: bold;
             cursor: pointer;
             transition: 0.2s;
+            font-size: 0.9rem;
         }
 
         .btn-primary {
             background: linear-gradient(95deg, #ff2b6e, #ff477e);
             border: none;
             color: white;
+            box-shadow: 0 4px 12px rgba(255,30,80,0.4);
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.02);
         }
 
         .ai-chat {
@@ -179,12 +161,18 @@
             gap: 15px;
         }
 
+        .chat-header {
+            color: #ffb0c3;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
         .chat-messages {
             flex: 1;
             background: #07020e80;
             border-radius: 28px;
             padding: 16px;
-            height: 400px;
+            height: 420px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
@@ -224,11 +212,19 @@
             padding: 12px 18px;
             color: white;
             outline: none;
+            font-size: 0.9rem;
+        }
+
+        .chat-input::placeholder {
+            color: #bb7a96;
         }
 
         @media (max-width: 1000px) {
             .main-grid {
                 grid-template-columns: 1fr;
+            }
+            .characters-panel, .ai-chat {
+                border: none;
             }
         }
     </style>
@@ -237,29 +233,28 @@
 <div class="game-container">
     <div class="header">
         <div class="logo">NetErrror · DESIRE ENGINE</div>
-        <div class="badge">18+ AI · 5000 фраз</div>
+        <div class="badge">18+ AI · 5000+ фраз</div>
     </div>
     <div class="main-grid">
+        <!-- левая панель персонажи -->
         <div class="characters-panel" id="charactersPanel"></div>
 
+        <!-- центр: только кнопки действий (ФОТО УБРАНО) -->
         <div class="center-stage">
-            <div class="photo-area" id="photoArea">
-                <div class="photo-placeholder">📸 ЗДЕСЬ БУДУТ ВАШИ ФОТО<br>— замените URL в массиве imagePool</div>
-            </div>
             <div class="action-buttons">
-                <button class="btn" id="randomPhotoBtn">🎲 СЛУЧАЙНОЕ ФОТО</button>
-                <button class="btn btn-primary" id="eroticActionBtn">💋 ИНТИМ-СЦЕНА</button>
-                <button class="btn" id="resetChatBtn">🔄 СБРОС</button>
+                <button class="btn btn-primary" id="eroticActionBtn">💋 ИНТИМ-СЦЕНА (МИНЕТ)</button>
+                <button class="btn" id="resetChatBtn">🔄 СБРОСИТЬ ДИАЛОГ</button>
             </div>
         </div>
 
+        <!-- правый ИИ-чат -->
         <div class="ai-chat">
-            <div class="chat-header" style="color:#ffb0c3; font-weight:bold;">🤖 AI NetErrror · 5000 горячих фраз</div>
+            <div class="chat-header">🤖 AI NetErrror · Seductive Core · 5000+ горячих фраз</div>
             <div class="chat-messages" id="chatMessages">
-                <div class="msg ai-msg">💬 Я знаю 5000+ развратных фраз. Пиши что хочешь — я предугадываю желания и отвечаю без границ.</div>
+                <div class="msg ai-msg">💬 Я — твой личный ИИ. Задавай любые вопросы, описывай фантазии. Я отвечаю без ограничений и предугадываю твои желания.</div>
             </div>
             <div class="chat-input-area">
-                <input type="text" id="chatInput" class="chat-input" placeholder="Напиши действие, желание, позу, диалог...">
+                <input type="text" id="chatInput" class="chat-input" placeholder="Напиши действие, позу, желание...">
                 <button class="btn" id="sendChatBtn">➤</button>
             </div>
         </div>
@@ -267,53 +262,55 @@
 </div>
 
 <script>
-    // ======================= ФОТО (замените на свои ссылки) =======================
-    let imagePool = [
-        // ⬇⬇⬇ СЮДА ВСТАВЬТЕ ВАШИ ССЫЛКИ ⬇⬇⬇
-        "https://via.placeholder.com/600x800/2a1a2f/ff88aa?text=Photo+1",
-        "https://via.placeholder.com/600x800/1e1025/ff77aa?text=Photo+2",
-        "https://via.placeholder.com/600x800/2f1a2a/ff99bb?text=Photo+3"
+    // ======================= ПЕРСОНАЖИ =======================
+    const characters = [
+        { id: 0, name: "Лили", desc: "Соблазнительная брюнетка, жадные губы", emoji: "💋" },
+        { id: 1, name: "Мира", desc: "Рыжая бестия, страстный взгляд", emoji: "🔥" },
+        { id: 2, name: "Вики", desc: "Нежная доминанта, искусный минет", emoji: "🍑" }
     ];
     
-    // ======================= 5000+ ГОРЯЧИХ ФРАЗ (генератор) =======================
-    // Реализовано через шаблоны + комбинаторику, дающую миллионы вариаций,
-    // но с гарантией уникальности в пределах 5000+ эмоционально насыщенных фраз
+    let currentCharacter = characters[0];
     
+    // ======================= 5000+ ГОРЯЧИХ ФРАЗ =======================
     const hotPhrases = {
-        // Основа для минета / оральных ласк
         oral: [
             "Медленно проводит языком по головке", "Берёт в рот глубоко, почти до основания",
             "Губы плотно смыкаются, создавая вакуум", "Язык круговыми движениями ласкает",
             "Смотрит в глаза, не выпуская изо рта", "Слегка прикусывает, вызывая дрожь",
             "Дразнит кончиком языка у уздечки", "Ритмично двигает головой, ускоряясь",
-            "Глубокий глотательный рефлекс заставляет стонать", "Облизывает с головы до основания"
+            "Глубокий глотательный рефлекс заставляет стонать", "Облизывает с головы до основания",
+            "Влажный рот скользит по всей длине", "Заглатывает так глубоко, что касается горла",
+            "Язык спиралью обвивает ствол", "Сначала медленно, потом всё быстрее и быстрее",
+            "Покусывает губами, создавая трение", "Сосёт с такой силой, что сводит с ума"
         ],
-        // Позы и действия
         poses: [
             "раком у зеркала", "на коленях перед тобой", "лёжа на спине, свесив голову с кровати",
             "сидя на корточках", "стоя на четвереньках", "прислонившись к стене",
-            "верхняя поза, контролируя ритм", "лёжа на животе", "догги-стайл"
+            "верхняя поза, контролируя ритм", "лёжа на животе", "догги-стайл",
+            "лёжа на боку, приподняв ногу", "сидя у тебя на коленях лицом к лицу",
+            "стоя на коленях, запрокинув голову", "на краю кровати, свесив ноги"
         ],
-        // Эмоции и реакции
         reactions: [
             "громко стонет", "дрожит от возбуждения", "закусывает губу", "закрывает глаза от наслаждения",
             "впивается ногтями в спину", "выгибает спину", "шепчет непристойности",
-            "теряет контроль над дыханием", "конвульсивно сжимается", "кричит от удовольствия"
+            "теряет контроль над дыханием", "конвульсивно сжимается", "кричит от удовольствия",
+            "вздрагивает при каждом толчке", "стонет сквозь зубы", "закатывает глаза от наслаждения",
+            "хватает ртом воздух", "издаёт глубокие горловые стоны"
         ],
-        // Интенсификаторы
         intensifiers: [
             "страстно", "жадно", "нежно, но требовательно", "с животной похотью",
             "медленно, сводя с ума", "быстро и жёстко", "с лёгкой болью и наслаждением",
-            "дразняще", "властно", "покорно"
+            "дразняще", "властно", "покорно", "исступлённо", "энергично",
+            "лениво, с хитрой улыбкой", "на грани безумия"
         ],
-        // Начала фраз
         starters: [
             "Её губы", "Твой член", "Язык скользит", "Дыхание учащается",
-            "Она", "Ты чувствуешь", "Каждое движение", "Влажный рот"
+            "Она", "Ты чувствуешь", "Каждое движение", "Влажный рот",
+            "Её руки", "Твоё тело", "Пульсация", "Каждый сантиметр"
         ]
     };
     
-    // Комбинаторный генератор: более 5000 уникальных фраз
+    // Комбинаторный генератор (более 5000 уникальных фраз)
     function generateHotPhrase() {
         const types = ['oral', 'poses', 'reactions'];
         const mainType = types[Math.floor(Math.random() * types.length)];
@@ -328,7 +325,7 @@
             const pose = hotPhrases.poses[Math.floor(Math.random() * hotPhrases.poses.length)];
             const intens = hotPhrases.intensifiers[Math.floor(Math.random() * hotPhrases.intensifiers.length)];
             const action = hotPhrases.oral[Math.floor(Math.random() * hotPhrases.oral.length)];
-            return `В позе ${pose}, ${intens} ${action.toLowerCase()}. Её стоны раздаются по комнате.`;
+            return `В позе ${pose}, ${intens} ${action.toLowerCase()}. ${hotPhrases.reactions[Math.floor(Math.random() * hotPhrases.reactions.length)]}.`;
         }
         else {
             const reaction = hotPhrases.reactions[Math.floor(Math.random() * hotPhrases.reactions.length)];
@@ -338,97 +335,46 @@
         }
     }
     
-    // Дополнительный массив специфических фраз для предугадывания действий игрока
-    const predictivePhrases = {
-        minet: [
-            "Ты хочешь почувствовать её влажный рот? Она уже опускается на колени.",
-            "Жадно берёт в рот, не отрывая глаз. Глубоко, ещё глубже.",
-            "Губы скользят по стволу, язык играет с головкой.",
-            "Минет становится искусством — медленно, с хитрой улыбкой.",
-            "Она стонет с членом во рту, вибрация сводит с ума."
-        ],
-        rakom: [
-            "Встаёт на четвереньки, изгибаясь как кошка. Ждёт твоего входа.",
-            "Поза раком — её самая любимая. Ты входишь медленно, она дрожит.",
-            "Шлепки по ягодицам заставляют её громко стонать.",
-            "Сзади открывается полный контроль, она просит глубже."
-        ],
-        dominatsiya: [
-            "Берёт инициативу в свои руки. «Лежи и наслаждайся».",
-            "Связывает твои руки шёлком, медленно садится сверху.",
-            "Она командует: «Не двигайся». Её рот делает всё возможное.",
-            "Доминирует над тобой, дразнит, не даёт кончить сразу."
-        ]
-    };
-    
     // Предугадывание действий игрока
     function predictAndRespond(userInput) {
         const input = userInput.toLowerCase();
-        if (input.includes('минет') || input.includes('отсос') || input.includes('губами') || input.includes('рот')) {
-            return predictivePhrases.minet[Math.floor(Math.random() * predictivePhrases.minet.length)];
+        
+        if (input.includes('минет') || input.includes('отсос') || input.includes('губами') || input.includes('рот') || input.includes('сосёшь')) {
+            const oral = hotPhrases.oral[Math.floor(Math.random() * hotPhrases.oral.length)];
+            const intens = hotPhrases.intensifiers[Math.floor(Math.random() * hotPhrases.intensifiers.length)];
+            return `💋 ${oral} ${intens}. ${currentCharacter.name} смотрит тебе в глаза и не останавливается. Ты чувствуешь, как её язык работает мастерски.`;
         }
         if (input.includes('раком') || input.includes('сзади') || input.includes('на четвереньках')) {
-            return predictivePhrases.rakom[Math.floor(Math.random() * predictivePhrases.rakom.length)];
+            const pose = hotPhrases.poses[Math.floor(Math.random() * hotPhrases.poses.length)];
+            return `🍑 ${currentCharacter.name} встаёт ${pose}. Ты входишь медленно, она выгибает спину и громко стонет. Каждый толчок глубже предыдущего.`;
         }
-        if (input.includes('домини') || input.includes('свяжи') || input.includes('госпожа') || input.includes('командуй')) {
-            return predictivePhrases.dominatsiya[Math.floor(Math.random() * predictivePhrases.dominatsiya.length)];
-        }
-        if (input.includes('фото') || input.includes('картинку')) {
-            return "📸 Сейчас покажу тебе что-то жаркое. Смотри и представляй, как её губы работают.";
+        if (input.includes('домини') || input.includes('свяжи') || input.includes('госпожа') || input.includes('командуй') || input.includes('раб')) {
+            return `⛓️ ${currentCharacter.name} берёт контроль: «Лежи и не двигайся». Она медленно раздевает тебя взглядом, затем её губы касаются твоего тела. Она решает, когда ты кончишь.`;
         }
         if (input.includes('поза') || input.includes('позиция')) {
             const pose = hotPhrases.poses[Math.floor(Math.random() * hotPhrases.poses.length)];
-            return `Поза «${pose}» — идеально для глубокого проникновения. Хочешь попробовать?`;
+            return `🔄 Поза «${pose}». ${currentCharacter.name} шепчет: «Я хочу тебя именно так». Идеально для глубокого проникновения. Попробуем?`;
         }
         if (input.includes('грудь') || input.includes('соски')) {
-            return "Она стонет, когда ты трогаешь её грудь. Соски твердеют от каждого прикосновения.";
+            return `🍒 Её соски твердеют от твоего прикосновения. ${currentCharacter.name} запрокидывает голову и стонет, когда ты проводишь языком по груди.`;
         }
-        if (input.includes('кончить') || input.includes('финиш')) {
-            return "Она чувствует твою пульсацию. Ускоряется, чтобы довести до взрыва. Готов кончить ей в рот?";
+        if (input.includes('кончить') || input.includes('финиш') || input.includes('спустить')) {
+            return `💦 Она чувствует, как ты пульсируешь. ${currentCharacter.name} ускоряется, её рот работает быстрее, чтобы довести тебя до взрыва. Кончи ей в рот, она всё проглотит.`;
         }
-        // универсальная горячая фраза
-        return generateHotPhrase();
+        if (input.includes('киска') || input.includes('пизда') || input.includes('влагалище')) {
+            return `💧 Она уже влажная. ${currentCharacter.name} раздвигает ноги и ждёт твоего прикосновения. Её киска пульсирует от желания.`;
+        }
+        if (input.includes('анал') || input.includes('жопа') || input.includes('попа')) {
+            return `🍑 ${currentCharacter.name} смазывает маслом и медленно расслабляется. «Будь нежным», — шепчет она, прикусывая губу.`;
+        }
+        
+        // Универсальная горячая фраза
+        return generateHotPhrase() + ` ${currentCharacter.name} ждёт твоего следующего шага.`;
     }
     
-    // ======================= ПЕРСОНАЖИ =======================
-    const characters = [
-        { id: 0, name: "Лили", desc: "Соблазнительная, жадные губы", emoji: "💋" },
-        { id: 1, name: "Мира", desc: "Рыжая бестия", emoji: "🔥" },
-        { id: 2, name: "Вики", desc: "Нежная домина", emoji: "🍑" }
-    ];
-    
-    let currentCharacter = characters[0];
-    let currentPhoto = null;
-    
-    function updateMainPhoto(photoUrl) {
-        const photoArea = document.getElementById('photoArea');
-        if (!photoUrl) {
-            photoArea.innerHTML = `<div class="photo-placeholder">📸 ФОТО БУДУТ ТУТ<br>— замените URL в imagePool</div>`;
-            return;
-        }
-        photoArea.innerHTML = `<img class="main-img" src="${photoUrl}" alt="content">`;
-        currentPhoto = photoUrl;
-    }
-    
-    function randomPhoto() {
-        if (imagePool.length === 0) {
-            updateMainPhoto(null);
-            return null;
-        }
-        const rand = imagePool[Math.floor(Math.random() * imagePool.length)];
-        updateMainPhoto(rand);
-        return rand;
-    }
-    
-    function intimateScene() {
-        randomPhoto();
-        const sceneText = predictivePhrases.minet[Math.floor(Math.random() * predictivePhrases.minet.length)] + 
-                         ` ${currentCharacter.name} отдаётся полностью.`;
-        appendAIMessage(sceneText);
-    }
-    
-    // Чат
+    // ======================= ЧАТ =======================
     const chatMessagesDiv = document.getElementById('chatMessages');
+    
     function appendUserMessage(text) {
         const div = document.createElement('div');
         div.className = 'msg user-msg';
@@ -455,14 +401,23 @@
         setTimeout(() => {
             const reply = predictAndRespond(userText);
             appendAIMessage(reply);
-        }, 80);
+        }, 100);
+    }
+    
+    function intimateScene() {
+        const oral = hotPhrases.oral[Math.floor(Math.random() * hotPhrases.oral.length)];
+        const intens = hotPhrases.intensifiers[Math.floor(Math.random() * hotPhrases.intensifiers.length)];
+        const reaction = hotPhrases.reactions[Math.floor(Math.random() * hotPhrases.reactions.length)];
+        const sceneText = `💋 ${currentCharacter.name} опускается на колени. ${oral} ${intens}, ${reaction}. Её губы обхватывают тебя полностью, язык играет с головкой. Ты хватаешь её за волосы, направляя ритм. Она стонет с членом во рту, вибрация сводит с ума.`;
+        appendAIMessage(sceneText);
     }
     
     function resetChat() {
-        chatMessagesDiv.innerHTML = `<div class="msg ai-msg">💬 Я знаю 5000+ развратных фраз. Пиши что хочешь — я предугадываю желания и отвечаю без границ.</div>`;
-        appendAIMessage(`✨ Диалог сброшен. ${currentCharacter.name} ждёт твоих команд.`);
+        chatMessagesDiv.innerHTML = `<div class="msg ai-msg">💬 Я — твой личный ИИ. Задавай любые вопросы, описывай фантазии. Я отвечаю без ограничений и предугадываю твои желания.</div>`;
+        appendAIMessage(`✨ Диалог сброшен. ${currentCharacter.name} снова готова исполнить любые твои фантазии. Напиши, чего ты хочешь.`);
     }
     
+    // ======================= ПЕРСОНАЖИ =======================
     function renderCharacters() {
         const panel = document.getElementById('charactersPanel');
         panel.innerHTML = `<div class="char-title">💋 ВЫБОР ПЕРСОНАЖА</div>`;
@@ -472,25 +427,20 @@
             card.innerHTML = `
                 <div class="char-avatar">${ch.emoji}</div>
                 <div class="char-name">${ch.name}</div>
-                <div class="char-desc" style="font-size:12px; color:#cc99aa;">${ch.desc}</div>
+                <div class="char-desc" style="font-size:12px; color:#cc99aa; margin-top:6px;">${ch.desc}</div>
             `;
             card.onclick = () => {
                 currentCharacter = ch;
                 renderCharacters();
-                updateMainPhoto(null);
-                appendAIMessage(`💞 Теперь ${ch.name}. ${ch.desc}. Готова исполнить любые фантазии.`);
+                appendAIMessage(`💞 Теперь выбран(а) ${ch.name}. ${ch.desc}. Я буду отвечать от её лица. Готова к любым играм. Напиши, что хочешь.`);
             };
             panel.appendChild(card);
         });
     }
     
-    // Инициализация
+    // ======================= ИНИЦИАЛИЗАЦИЯ =======================
     renderCharacters();
-    updateMainPhoto(null);
-    document.getElementById('randomPhotoBtn').onclick = () => {
-        randomPhoto();
-        appendAIMessage(`📸 Свежее фото. ${currentCharacter.name} знает, как тебя завести.`);
-    };
+    
     document.getElementById('eroticActionBtn').onclick = intimateScene;
     document.getElementById('sendChatBtn').onclick = handleUserChat;
     document.getElementById('resetChatBtn').onclick = resetChat;
@@ -498,8 +448,10 @@
         if (e.key === 'Enter') handleUserChat();
     });
     
-    // Демонстрация разнообразия фраз
-    console.log("Генератор фраз активен. Вариаций > 5000");
+    // Приветствие
+    setTimeout(() => {
+        appendAIMessage(`💋 ${currentCharacter.name} готова. Напиши любое желание — минет, позу, доминирование, анал, кончить. Я отвечу жарко и без границ.`);
+    }, 500);
 </script>
 </body>
 </html>
