@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>NetErrror — Desire Engine</title>
+    <title>NetErrror — Desire Engine (GAY + STRAIGHT)</title>
     <style>
         * {
             margin: 0;
@@ -57,6 +57,32 @@
             border-radius: 60px;
             color: #ff99bb;
             border: 1px solid #ff4d7a;
+        }
+
+        .gender-selector {
+            display: flex;
+            gap: 12px;
+            background: rgba(0,0,0,0.4);
+            padding: 8px 20px;
+            border-radius: 60px;
+            margin-top: 10px;
+        }
+
+        .gender-btn {
+            background: rgba(30,15,40,0.7);
+            border: 1px solid #ff4d7a;
+            padding: 6px 18px;
+            border-radius: 40px;
+            color: #ffbbd0;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: 0.2s;
+        }
+
+        .gender-btn.active {
+            background: linear-gradient(95deg, #ff2b6e, #ff477e);
+            color: white;
+            border: none;
         }
 
         .main-grid {
@@ -233,25 +259,24 @@
 <div class="game-container">
     <div class="header">
         <div class="logo">NetErrror · DESIRE ENGINE</div>
-        <div class="badge">18+ AI · 5000+ фраз</div>
+        <div class="badge">18+ AI · STRAIGHT + GAY</div>
+    </div>
+    <div class="gender-selector" id="genderSelector">
+        <button class="gender-btn active" data-gender="straight">💋 СТРЕЙТ (М+Ж)</button>
+        <button class="gender-btn" data-gender="gay">🍆 ГЕЙ (М+М)</button>
     </div>
     <div class="main-grid">
-        <!-- левая панель персонажи -->
         <div class="characters-panel" id="charactersPanel"></div>
-
-        <!-- центр: только кнопки действий -->
         <div class="center-stage">
             <div class="action-buttons">
-                <button class="btn btn-primary" id="eroticActionBtn">💋 ИНТИМ-СЦЕНА (МИНЕТ)</button>
+                <button class="btn btn-primary" id="eroticActionBtn">💋 ИНТИМ-СЦЕНА</button>
                 <button class="btn" id="resetChatBtn">🔄 СБРОСИТЬ ДИАЛОГ</button>
             </div>
         </div>
-
-        <!-- правый ИИ-чат -->
         <div class="ai-chat">
-            <div class="chat-header">🤖 AI NetErrror · Seductive Core · 5000+ горячих фраз</div>
+            <div class="chat-header">🤖 AI NetErrror · 5000+ горячих фраз · СТРЕЙТ + ГЕЙ</div>
             <div class="chat-messages" id="chatMessages">
-                <div class="msg ai-msg">💬 Я — твой личный ИИ. Задавай любые вопросы, описывай фантазии. Я отвечаю без ограничений и предугадываю твои желания.</div>
+                <div class="msg ai-msg">💬 Я — твой личный ИИ. Выбери режим: СТРЕЙТ (М+Ж) или ГЕЙ (М+М). Задавай любые вопросы, описывай фантазии.</div>
             </div>
             <div class="chat-input-area">
                 <input type="text" id="chatInput" class="chat-input" placeholder="Напиши действие, позу, желание...">
@@ -261,17 +286,29 @@
     </div>
 </div>
 
-<script>    // ======================= ПЕРСОНАЖИ =======================
-    const characters = [
-        { id: 0, name: "Лили", desc: "Соблазнительная брюнетка, жадные губы", emoji: "💋" },
-        { id: 1, name: "Мира", desc: "Рыжая бестия, страстный взгляд", emoji: "🔥" },
-        { id: 2, name: "Вики", desc: "Нежная доминанта, искусный минет", emoji: "🍑" }
+<script>    // ======================= ПЕРЕМЕННЫЕ РЕЖИМА =======================
+    let currentGender = "straight"; // straight или gay
+    let currentCharacter = null;
+    
+    // ======================= ПЕРСОНАЖИ =======================
+    const straightCharacters = [
+        { id: 0, name: "Лили", desc: "Соблазнительная брюнетка, жадные губы", emoji: "💋", gender: "straight" },
+        { id: 1, name: "Мира", desc: "Рыжая бестия, страстный взгляд", emoji: "🔥", gender: "straight" },
+        { id: 2, name: "Вики", desc: "Нежная доминанта, искусный минет", emoji: "🍑", gender: "straight" },
+        { id: 3, name: "Анжелика", desc: "Высокая блондинка, длинные ноги", emoji: "💎", gender: "straight" },
+        { id: 4, name: "Катя", desc: "Скромная, но страстная в постели", emoji: "🌸", gender: "straight" }
     ];
     
-    let currentCharacter = characters[0];
+    const gayCharacters = [
+        { id: 0, name: "Макс", desc: "Маскулинный, мощный торс, доминант", emoji: "💪", gender: "gay" },
+        { id: 1, name: "Никита", desc: "Спортивный, страстный, любит орал", emoji: "🔥", gender: "gay" },
+        { id: 2, name: "Артем", desc: "Нежный, но требовательный, отличный минет", emoji: "👅", gender: "gay" },
+        { id: 3, name: "Даниил", desc: "Брутальный, волосатая грудь, доминант", emoji: "🦁", gender: "gay" },
+        { id: 4, name: "Егор", desc: "Сабмиссив, любит подчиняться", emoji: "🐺", gender: "gay" }
+    ];
     
-    // ======================= БАЗА ГОРЯЧИХ ФРАЗ (5000+ комбинаций) =======================
-    const hotPhrases = {
+    // ======================= БАЗА ГОРЯЧИХ ФРАЗ (СТРЕЙТ) =======================
+    const straightPhrases = {
         oral: [
             "Медленно проводит языком по головке", "Берёт в рот глубоко, почти до основания",
             "Губы плотно смыкаются, создавая вакуум", "Язык круговыми движениями ласкает",
@@ -280,148 +317,195 @@
             "Глубокий глотательный рефлекс заставляет стонать", "Облизывает с головы до основания",
             "Влажный рот скользит по всей длине", "Заглатывает так глубоко, что касается горла",
             "Язык спиралью обвивает ствол", "Сначала медленно, потом всё быстрее и быстрее",
-            "Покусывает губами, создавая трение", "Сосёт с такой силой, что сводит с ума",
-            "Проводит языком по венам", "Обхватывает губами и начинает медленно двигаться",
-            "Ускоряется, когда чувствует твою пульсацию", "Играет языком у основания",
-            "Замирает с членом во рту, смотрит в глаза", "Глубоко заглатывает, не давясь",
-            "Слюна стекает по подбородку", "Дразнит, проводя языком только по головке",
-            "Сосёт, надувая щёки", "Ритмично двигает головой, не останавливаясь"
+            "Покусывает губами, создавая трение", "Сосёт с такой силой, что сводит с ума"
         ],
         poses: [
             "раком у зеркала", "на коленях перед тобой", "лёжа на спине, свесив голову с кровати",
             "сидя на корточках", "стоя на четвереньках", "прислонившись к стене",
             "верхняя поза, контролируя ритм", "лёжа на животе", "догги-стайл",
             "лёжа на боку, приподняв ногу", "сидя у тебя на коленях лицом к лицу",
-            "стоя на коленях, запрокинув голову", "на краю кровати, свесив ноги",
-            "лёжа крест-накрест", "стоя лицом к стене, прогнувшись",
-            "сидя верхом, лицом к тебе", "на коленях, привязанная к кровати",
-            "лёжа на животе с подушкой под бёдрами", "стоя на одной ноге, опираясь на стену"
+            "стоя на коленях, запрокинув голову", "на краю кровати, свесив ноги"
         ],
         reactions: [
             "громко стонет", "дрожит от возбуждения", "закусывает губу", "закрывает глаза от наслаждения",
             "впивается ногтями в спину", "выгибает спину", "шепчет непристойности",
+            "теряет контроль над дыханием", "конвульсивно сжимается", "кричит от удовольствия"
+        ],
+        intensifiers: [
+            "страстно", "жадно", "нежно, но требовательно", "с животной похотью",
+            "медленно, сводя с ума", "быстро и жёстко", "с лёгкой болью и наслаждением",
+            "дразняще", "властно", "покорно", "исступлённо", "энергично"
+        ],
+        starters: [
+            "Её губы", "Твой член", "Язык скользит", "Дыхание учащается",
+            "Она", "Ты чувствуешь", "Каждое движение", "Влажный рот",
+            "Её руки", "Твоё тело", "Пульсация"
+        ]
+    };
+    
+    // ======================= БАЗА ГОРЯЧИХ ФРАЗ (ГЕЙ) =======================
+    const gayPhrases = {
+        oral: [
+            "Медленно проводит языком по головке", "Берёт в рот глубоко, почти до основания",
+            "Губы плотно смыкаются, создавая вакуум", "Язык круговыми движениями ласкает",
+            "Смотрит в глаза, не выпуская изо рта", "Слегка прикусывает, вызывая дрожь",
+            "Дразнит кончиком языка у уздечки", "Ритмично двигает головой, ускоряясь",
+            "Глубокий глотательный рефлекс заставляет стонать", "Облизывает с головы до основания",
+            "Его рот работает ритмично, не останавливаясь", "Заглатывает глубоко, чувствуя пульсацию",
+            "Язык скользит по всей длине", "Сосёт жадно, иногда покусывая",
+            "Проводит языком по венам", "Ускоряется, чувствуя твоё напряжение"
+        ],
+        poses: [
+            "раком на кровати", "на коленях перед тобой", "лёжа на спине, ноги на твоих плечах",
+            "стоя у стены", "на четвереньках", "прислонившись к стене",
+            "верхняя поза, контролируя ритм", "лёжа на животе", "догги-стайл",
+            "лёжа на боку, приподняв ногу", "сидя у тебя на коленях лицом к лицу",
+            "стоя на коленях, запрокинув голову", "миссионерская с поднятыми ногами"
+        ],
+        reactions: [
+            "громко стонет", "дрожит от возбуждения", "закусывает губу", "закрывает глаза от наслаждения",
+            "впивается пальцами в спину", "выгибает спину", "шепчет грязные слова",
             "теряет контроль над дыханием", "конвульсивно сжимается", "кричит от удовольствия",
-            "вздрагивает при каждом толчке", "стонет сквозь зубы", "закатывает глаза от наслаждения",
-            "хватает ртом воздух", "издаёт глубокие горловые стоны", "всхлипывает от переизбытка чувств",
-            "бьётся в мелкой дрожи", "сжимает бёдра", "хватается за простыни",
-            "бормочет что-то бессвязное", "стонет твоё имя"
+            "стонет твоё имя", "хватает ртом воздух", "вздрагивает при каждом толчке"
         ],
         intensifiers: [
             "страстно", "жадно", "нежно, но требовательно", "с животной похотью",
             "медленно, сводя с ума", "быстро и жёстко", "с лёгкой болью и наслаждением",
             "дразняще", "властно", "покорно", "исступлённо", "энергично",
-            "лениво, с хитрой улыбкой", "на грани безумия", "с отчаянием и страстью",
-            "игриво", "грубо и нежно одновременно", "сдерживаясь, но срываясь"
+            "грубо", "с отчаянием и страстью"
         ],
         starters: [
-            "Её губы", "Твой член", "Язык скользит", "Дыхание учащается",
-            "Она", "Ты чувствуешь", "Каждое движение", "Влажный рот",
-            "Её руки", "Твоё тело", "Пульсация", "Каждый сантиметр",
-            "Взгляд снизу вверх", "Её стоны", "Сквозь сомкнутые веки"
+            "Его губы", "Твой член", "Язык скользит", "Дыхание учащается",
+            "Он", "Ты чувствуешь", "Каждое движение", "Влажный рот",
+            "Его руки", "Твоё тело", "Пульсация", "Мускулы напрягаются"
         ]
     };
     
-    // ======================= ГЕНЕРАТОР ФРАЗ (более 5000 уникальных) =======================
+    // Получение текущей базы фраз
+    function getCurrentPhrases() {
+        return currentGender === "straight" ? straightPhrases : gayPhrases;
+    }
+    
+    // Генератор фраз (более 5000 комбинаций)
     function generateHotPhrase() {
+        const phrases = getCurrentPhrases();
         const types = ['oral', 'poses', 'reactions'];
         const mainType = types[Math.floor(Math.random() * types.length)];
         
         if (mainType === 'oral') {
-            const oral = hotPhrases.oral[Math.floor(Math.random() * hotPhrases.oral.length)];
-            const intens = hotPhrases.intensifiers[Math.floor(Math.random() * hotPhrases.intensifiers.length)];
-            const reaction = hotPhrases.reactions[Math.floor(Math.random() * hotPhrases.reactions.length)];
+            const oral = phrases.oral[Math.floor(Math.random() * phrases.oral.length)];
+            const intens = phrases.intensifiers[Math.floor(Math.random() * phrases.intensifiers.length)];
+            const reaction = phrases.reactions[Math.floor(Math.random() * phrases.reactions.length)];
             return `${oral} ${intens}, ${reaction}.`;
         } 
         else if (mainType === 'poses') {
-            const pose = hotPhrases.poses[Math.floor(Math.random() * hotPhrases.poses.length)];
-            const intens = hotPhrases.intensifiers[Math.floor(Math.random() * hotPhrases.intensifiers.length)];
-            const action = hotPhrases.oral[Math.floor(Math.random() * hotPhrases.oral.length)];
-            const reaction = hotPhrases.reactions[Math.floor(Math.random() * hotPhrases.reactions.length)];
+            const pose = phrases.poses[Math.floor(Math.random() * phrases.poses.length)];
+            const intens = phrases.intensifiers[Math.floor(Math.random() * phrases.intensifiers.length)];
+            const action = phrases.oral[Math.floor(Math.random() * phrases.oral.length)];
+            const reaction = phrases.reactions[Math.floor(Math.random() * phrases.reactions.length)];
             return `В позе ${pose}, ${intens} ${action.toLowerCase()}. ${reaction}.`;
         }
         else {
-            const reaction = hotPhrases.reactions[Math.floor(Math.random() * hotPhrases.reactions.length)];
-            const intens = hotPhrases.intensifiers[Math.floor(Math.random() * hotPhrases.intensifiers.length)];
-            const starter = hotPhrases.starters[Math.floor(Math.random() * hotPhrases.starters.length)];
-            return `${starter} ${intens} ${reaction}. Тело выгибается в экстазе.`;
+            const reaction = phrases.reactions[Math.floor(Math.random() * phrases.reactions.length)];
+            const intens = phrases.intensifiers[Math.floor(Math.random() * phrases.intensifiers.length)];
+            const starter = phrases.starters[Math.floor(Math.random() * phrases.starters.length)];
+            const pronoun = currentGender === "straight" ? "Её" : "Его";
+            return `${starter} ${intens} ${reaction}. ${pronoun} тело выгибается в экстазе.`;
         }
-    }    // ======================= ПРЕДУГАДЫВАНИЕ ДЕЙСТВИЙ ИГРОКА =======================
+    }    // ======================= ПРЕДУГАДЫВАНИЕ ДЕЙСТВИЙ =======================
     function predictAndRespond(userInput) {
         const input = userInput.toLowerCase();
+        const phrases = getCurrentPhrases();
+        const char = currentCharacter;
+        const charName = char ? char.name : (currentGender === "straight" ? "девушка" : "парень");
+        const pronoun = currentGender === "straight" ? "она" : "он";
+        const pronounHis = currentGender === "straight" ? "её" : "его";
         
         // минет / оральные ласки
         if (input.includes('минет') || input.includes('отсос') || input.includes('губами') || input.includes('рот') || 
-            input.includes('сосёшь') || input.includes('орал') || input.includes('отсоси') || input.includes('губки')) {
-            const oral = hotPhrases.oral[Math.floor(Math.random() * hotPhrases.oral.length)];
-            const intens = hotPhrases.intensifiers[Math.floor(Math.random() * hotPhrases.intensifiers.length)];
-            return `💋 ${oral} ${intens}. ${currentCharacter.name} смотрит тебе в глаза, не выпуская изо рта. Её язык работает мастерски, а стоны вибрируют по всему стволу. Ты хватаешь её за волосы и направляешь глубже.`;
+            input.includes('сосёшь') || input.includes('орал') || input.includes('отсоси') || input.includes('губки') ||
+            input.includes('сосал') || input.includes('сосала')) {
+            const oral = phrases.oral[Math.floor(Math.random() * phrases.oral.length)];
+            const intens = phrases.intensifiers[Math.floor(Math.random() * phrases.intensifiers.length)];
+            if (currentGender === "straight") {
+                return `💋 ${oral} ${intens}. ${charName} смотрит тебе в глаза, не выпуская изо рта. Её язык работает мастерски, а стоны вибрируют по всему стволу. Ты хватаешь её за волосы и направляешь глубже.`;
+            } else {
+                return `🍆 ${oral} ${intens}. ${charName} смотрит снизу вверх, его рот плотно обхватывает твой член. Он работает языком мастерски, иногда покусывая. Ты хватаешь его за волосы, ускоряя ритм. Он стонет с членом во рту.`;
+            }
         }
         
-        // поза раком / сзади
+        // поза раком / сзади / догги
         if (input.includes('раком') || input.includes('сзади') || input.includes('на четвереньках') || input.includes('догги')) {
-            const pose = hotPhrases.poses[Math.floor(Math.random() * hotPhrases.poses.length)];
-            return `🍑 ${currentCharacter.name} встаёт ${pose}. Она выгибает спину, подставляясь под твой ритм. Ты входишь медленно, чувствуя, как она сжимается от каждого толчка. «Глубже», — шепчет она, кусая губы.`;
+            const pose = phrases.poses[Math.floor(Math.random() * phrases.poses.length)];
+            if (currentGender === "straight") {
+                return `🍑 ${charName} встаёт ${pose}. Она выгибает спину, подставляясь под твой ритм. Ты входишь медленно, чувствуя, как она сжимается от каждого толчка. «Глубже», — шепчет она, кусая губы.`;
+            } else {
+                return `🍆 ${charName} встаёт ${pose}. Его мускулы напрягаются, он ждёт твоего входа. Ты входишь медленно, он стонет, сжимаясь вокруг тебя. «Трахни меня жёстче», — шепчет он, впиваясь пальцами в простыни.`;
+            }
         }
         
-        // доминирование / госпожа
+        // доминирование / госпожа / господин
         if (input.includes('домини') || input.includes('свяжи') || input.includes('госпожа') || input.includes('командуй') || 
-            input.includes('раб') || input.includes('подчини') || input.includes('хозяйка')) {
-            return `⛓️ ${currentCharacter.name} усмехается: «Ты будешь делать то, что я скажу». Она связывает твои руки шёлковым платком, медленно проводя ногтями по груди. «Не двигайся, пока я не разрешу». Её губы спускаются всё ниже, дразня каждым прикосновением.`;
+            input.includes('раб') || input.includes('подчини') || input.includes('хозяйка') || input.includes('господин') ||
+            input.includes('повелитель')) {
+            if (currentGender === "straight") {
+                return `⛓️ ${charName} усмехается: «Ты будешь делать то, что я скажу». Она связывает твои руки шёлковым платком, медленно проводя ногтями по груди. «Не двигайся, пока я не разрешу». Её губы спускаются всё ниже, дразня каждым прикосновением.`;
+            } else {
+                return `⛓️ ${charName} смотрит на тебя властным взглядом: «На колени». Его голос не терпит возражений. Он связывает твои руки, медленно раздеваясь перед тобой. «Ты будешь делать всё, что я скажу. А теперь открой рот».`;
+            }
         }
         
         // поза (общий запрос)
         if (input.includes('поза') || input.includes('позиция') || input.includes('положение')) {
-            const pose = hotPhrases.poses[Math.floor(Math.random() * hotPhrases.poses.length)];
-            return `🔄 Поза «${pose}». ${currentCharacter.name} шепчет: «Я хочу чувствовать тебя именно так». Она помогает тебе принять правильное положение, её дыхание учащается в ожидании.`;
-        }
-        
-        // грудь / соски
-        if (input.includes('грудь') || input.includes('соски') || input.includes('титьки') || input.includes('сиськи')) {
-            return `🍒 Её соски твердеют от твоего прикосновения. ${currentCharacter.name} запрокидывает голову, издавая глубокий стон, когда ты проводишь языком по груди. Она впивается ногтями в твои плечи, притягивая ближе.`;
+            const pose = phrases.poses[Math.floor(Math.random() * phrases.poses.length)];
+            if (currentGender === "straight") {
+                return `🔄 Поза «${pose}». ${charName} шепчет: «Я хочу чувствовать тебя именно так». Она помогает тебе принять правильное положение, её дыхание учащается в ожидании.`;
+            } else {
+                return `🔄 Поза «${pose}». ${charName} улыбается: «Давай попробуем так». Он ложится удобнее, его тело напряжено в ожидании. «Я хочу чувствовать тебя глубже».`;
+            }
         }
         
         // кончить / финиш
-        if (input.includes('кончить') || input.includes('финиш') || input.includes('спустить') || input.includes('эякул')) {
-            return `💦 Она чувствует, как ты пульсируешь. ${currentCharacter.name} ускоряется, её рот работает быстрее, а язык становится жёстче. «Кончи для меня», — шепчет она, не останавливаясь. Ты взрываешься, а она проглатывает всё до последней капли, облизывая губы.`;
+        if (input.includes('кончить') || input.includes('финиш') || input.includes('спустить') || input.includes('эякул') ||
+            input.includes('кончай') || input.includes('спусти')) {
+            if (currentGender === "straight") {
+                return `💦 ${charName} чувствует, как ты пульсируешь. Она ускоряется, её рот работает быстрее, а язык становится жёстче. «Кончи для меня», — шепчет она, не останавливаясь. Ты взрываешься, а она проглатывает всё до последней капли, облизывая губы.`;
+            } else {
+                return `💦 ${charName} чувствует твою пульсацию. Он ускоряется, сжимаясь вокруг тебя. «Кончи в меня», — шепчет он, впиваясь пальцами в твои бёдра. Ты взрываешься глубоко внутри, он стонет, кончая следом.`;
+            }
         }
         
-        // киска / влагалище / пизда
-        if (input.includes('киска') || input.includes('пизда') || input.includes('влагалище') || input.includes('вагина')) {
-            return `💧 Она уже влажная. ${currentCharacter.name} раздвигает ноги, открываясь перед тобой. «Почувствуй, как я хочу тебя», — шепчет она, направляя твою руку. Её киска пульсирует, ожидая прикосновения.`;
-        }
-        
-        // анал / жопа
-        if (input.includes('анал') || input.includes('жопа') || input.includes('попа') || input.includes('зад')) {
-            return `🍑 ${currentCharacter.name} смазывает маслом и медленно расслабляется. «Будь нежным сначала», — шепчет она, прикусывая губу. Ты входишь медленно, чувствуя, как она сжимается и стонет от каждого миллиметра.`;
-        }
-        
-        // куни / лизать киску
-        if (input.includes('куни') || input.includes('лизать киску') || input.includes('сделай минет мне')) {
-            return `👅 ${currentCharacter.name} откидывается на спину, раздвигая ноги. «Я хочу чувствовать твой язык», — шепчет она, дрожа от предвкушения. Ты опускаешься вниз, проводя языком по её клитору, и она выгибается от первого же прикосновения.`;
+        // анал
+        if (input.includes('анал') || input.includes('жопа') || input.includes('попа') || input.includes('зад') ||
+            input.includes('в жопу') || input.includes('аналка')) {
+            if (currentGender === "straight") {
+                return `🍑 ${charName} смазывает маслом и медленно расслабляется. «Будь нежным сначала», — шепчет она, прикусывая губу. Ты входишь медленно, чувствуя, как она сжимается и стонет от каждого миллиметра.`;
+            } else {
+                return `🍆 ${charName} ложится на живот, подставляясь. «Смазка уже готова», — шепчет он, расслабляясь. Ты входишь медленно, он стонет, прикусывая губу. «Глубже... да... трахни меня в жопу».`;
+            }
         }
         
         // 69 поза
         if (input.includes('69') || input.includes('шестьдесят девять')) {
-            return `🔄 ${currentCharacter.name} переворачивается, устраиваясь сверху. «Одновременно», — шепчет она, опускаясь ртом на твой член, а ты чувствуешь вкус её возбуждения. Ваши стоны сливаются в едином ритме.`;
-        }
-        
-        // роль / ролевая игра
-        if (input.includes('роль') || input.includes('ролевая') || input.includes('игра') && input.includes('секр')) {
-            const roles = ["медсестру", "учительницу", "начальницу", "студентку", "горничную", "незнакомку в баре"];
-            const role = roles[Math.floor(Math.random() * roles.length)];
-            return `🎭 ${currentCharacter.name} улыбается: «Хочешь, я буду твоей ${role}?». Она меняет поведение, играя новую роль. «Ты будешь делать всё, что я скажу... или накажу». Её голос звучит иначе, возбуждая ещё сильнее.`;
+            if (currentGender === "straight") {
+                return `🔄 ${charName} переворачивается, устраиваясь сверху. «Одновременно», — шепчет она, опускаясь ртом на твой член, а ты чувствуешь вкус её возбуждения. Ваши стоны сливаются в едином ритме.`;
+            } else {
+                return `🔄 ${charName} переворачивается, устраиваясь сверху. «Давай одновременно», — шепчет он, беря твой член в рот. Ты чувствуешь его пульсацию у своих губ. Ваши стоны вибрируют друг у друга во рту.`;
+            }
         }
         
         // привет / начало
         if (input.includes('привет') || input.includes('здравствуй') || input.includes('hi') || input.includes('hello')) {
-            return `👄 Привет, сладкий. ${currentCharacter.name} уже ждала тебя. Её губы влажные и готовые. Напиши, чего ты хочешь сегодня: минет, позу, ролевую игру или что-то более смелое?`;
+            if (currentGender === "straight") {
+                return `👄 Привет, сладкий. ${charName} уже ждала тебя. Её губы влажные и готовые. Напиши, чего ты хочешь сегодня: минет, позу, ролевую игру, анал или что-то более смелое?`;
+            } else {
+                return `👄 Привет, парень. ${charName} уже ждёт тебя. Его член напряжён, губы влажные. Напиши, чего ты хочешь: минет, анал, позу раком, доминирование или что-то ещё?`;
+            }
         }
         
-        // универсальная горячая фраза, если ничего не подошло
-        return generateHotPhrase() + ` ${currentCharacter.name} ждёт твоего следующего шага. Напиши, что ты хочешь с ней сделать.`;
-    }
-    
-    // ======================= ФУНКЦИИ ЧАТА =======================
+        // универсальная горячая фраза
+        return generateHotPhrase() + ` ${charName} ждёт твоего следующего шага. Напиши, что ты хочешь сделать с ${pronounHis}.`;
+    }    // ======================= ФУНКЦИИ ЧАТА =======================
     const chatMessagesDiv = document.getElementById('chatMessages');
     
     function appendUserMessage(text) {
@@ -453,22 +537,46 @@
         }, 100);
     }
     
+    // ======================= ИНТИМ-СЦЕНА (СТРЕЙТ + ГЕЙ) =======================
     function intimateScene() {
-        const oral = hotPhrases.oral[Math.floor(Math.random() * hotPhrases.oral.length)];
-        const intens = hotPhrases.intensifiers[Math.floor(Math.random() * hotPhrases.intensifiers.length)];
-        const reaction = hotPhrases.reactions[Math.floor(Math.random() * hotPhrases.reactions.length)];
-        const sceneText = `💋 ${currentCharacter.name} опускается на колени перед тобой. Она медленно расстёгивает ремень, глядя снизу вверх. ${oral} ${intens}, ${reaction}. Её губы обхватывают тебя полностью, язык играет с головкой. Ты хватаешь её за волосы, направляя ритм. Она стонет с членом во рту, вибрация сводит с ума. Её слюна стекает по подбородку, а глаза полны желания.`;
-        appendAIMessage(sceneText);
+        const phrases = getCurrentPhrases();
+        const char = currentCharacter;
+        const charName = char ? char.name : (currentGender === "straight" ? "девушка" : "парень");
+        
+        if (currentGender === "straight") {
+            const oral = phrases.oral[Math.floor(Math.random() * phrases.oral.length)];
+            const intens = phrases.intensifiers[Math.floor(Math.random() * phrases.intensifiers.length)];
+            const reaction = phrases.reactions[Math.floor(Math.random() * phrases.reactions.length)];
+            const sceneText = `💋 ${charName} опускается на колени перед тобой. Она медленно расстёгивает ремень, глядя снизу вверх. ${oral} ${intens}, ${reaction}. Её губы обхватывают тебя полностью, язык играет с головкой. Ты хватаешь её за волосы, направляя ритм. Она стонет с членом во рту, вибрация сводит с ума. Её слюна стекает по подбородку, а глаза полны желания. Она ускоряется, чувствуя твою пульсацию. «Кончи мне в рот», — шепчет она, не останавливаясь.`;
+            appendAIMessage(sceneText);
+        } else {
+            const oral = phrases.oral[Math.floor(Math.random() * phrases.oral.length)];
+            const intens = phrases.intensifiers[Math.floor(Math.random() * phrases.intensifiers.length)];
+            const reaction = phrases.reactions[Math.floor(Math.random() * phrases.reactions.length)];
+            const sceneText = `🍆 ${charName} становится на колени перед тобой. Он медленно облизывает губы, глядя снизу вверх. ${oral} ${intens}, ${reaction}. Его рот плотно обхватывает твой член, язык работает умело и жадно. Ты хватаешь его за волосы, направляя глубже. Он стонет с членом во рту, вибрация сводит с ума. Слюна стекает по подбородку, он заглатывает всё глубже, не останавливаясь. Его рука сжимает твои яйца, усиливая ощущения. «Трахни мой рот», — шепчет он, ускоряясь.`;
+            appendAIMessage(sceneText);
+        }
     }
     
     function resetChat() {
-        chatMessagesDiv.innerHTML = `<div class="msg ai-msg">💬 Я — твой личный ИИ. Задавай любые вопросы, описывай фантазии. Я отвечаю без ограничений и предугадываю твои желания.</div>`;
-        appendAIMessage(`✨ Диалог сброшен. ${currentCharacter.name} снова готова исполнить любые твои фантазии. Напиши, чего ты хочешь: минет, позу, доминирование, анал или что-то ещё.`);
+        const char = currentCharacter;
+        const charName = char ? char.name : (currentGender === "straight" ? "девушка" : "парень");
+        const genderText = currentGender === "straight" ? "СТРЕЙТ (М+Ж)" : "ГЕЙ (М+М)";
+        chatMessagesDiv.innerHTML = `<div class="msg ai-msg">💬 Я — твой личный ИИ. Режим: ${genderText}. Задавай любые вопросы, описывай фантазии. Я отвечаю без ограничений и предугадываю твои желания.</div>`;
+        appendAIMessage(`✨ Диалог сброшен. ${charName} снова готов(а) исполнить любые твои фантазии. Напиши, чего ты хочешь: минет, анал, позу раком, доминирование, 69 или что-то ещё.`);
     }    // ======================= РЕНДЕР ПЕРСОНАЖЕЙ =======================
     function renderCharacters() {
         const panel = document.getElementById('charactersPanel');
-        panel.innerHTML = `<div class="char-title">💋 ВЫБОР ПЕРСОНАЖА</div>`;
-        characters.forEach(ch => {
+        const charactersList = currentGender === "straight" ? straightCharacters : gayCharacters;
+        
+        // Если текущий персонаж не из выбранного режима или null, выбираем первого
+        if (!currentCharacter || currentCharacter.gender !== currentGender) {
+            currentCharacter = charactersList[0];
+        }
+        
+        panel.innerHTML = `<div class="char-title">💋 ВЫБОР ПЕРСОНАЖА (${currentGender === "straight" ? "ДЕВУШКИ" : "ПАРНИ"})</div>`;
+        
+        charactersList.forEach(ch => {
             const card = document.createElement('div');
             card.className = `character-card ${currentCharacter.id === ch.id ? 'selected' : ''}`;
             card.innerHTML = `
@@ -479,13 +587,47 @@
             card.onclick = () => {
                 currentCharacter = ch;
                 renderCharacters();
-                appendAIMessage(`💞 Теперь выбран(а) ${ch.name}. ${ch.desc}. Я буду отвечать от её лица. Готова к любым играм. Напиши, что хочешь: минет, позу, доминирование, анал, куни, 69 — я отвечу жарко.`);
+                const pronoun = currentGender === "straight" ? "готова" : "готов";
+                appendAIMessage(`💞 Теперь выбран ${ch.name}. ${ch.desc}. ${ch.name} ${pronoun} исполнить любые твои фантазии. Напиши, что хочешь: минет, анал, позу, доминирование, 69 — я отвечу жарко.`);
             };
             panel.appendChild(card);
         });
     }
     
+    // ======================= ПЕРЕКЛЮЧЕНИЕ РЕЖИМОВ =======================
+    function switchGender(gender) {
+        currentGender = gender;
+        
+        // Обновляем активную кнопку
+        document.querySelectorAll('.gender-btn').forEach(btn => {
+            if (btn.dataset.gender === gender) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+        
+        // Переключаем персонажа
+        const charactersList = currentGender === "straight" ? straightCharacters : gayCharacters;
+        currentCharacter = charactersList[0];
+        
+        // Перерисовываем панель персонажей
+        renderCharacters();
+        
+        // Очищаем чат и отправляем приветствие
+        const genderText = currentGender === "straight" ? "СТРЕЙТ (М+Ж)" : "ГЕЙ (М+М)";
+        const charName = currentCharacter.name;
+        const welcomeMsg = currentGender === "straight" 
+            ? `💋 Режим СТРЕЙТ активирован. Теперь ты с ${charName}. Она ждёт твоих команд. Напиши: минет, поза раком, анал, доминирование, 69.`
+            : `🍆 Режим ГЕЙ активирован. Теперь ты с ${charName}. Он ждёт твоих команд. Напиши: минет, поза раком, анал, доминирование, 69.`;
+        
+        chatMessagesDiv.innerHTML = `<div class="msg ai-msg">💬 Я — твой личный ИИ. Режим: ${genderText}. Задавай любые вопросы, описывай фантазии. Я отвечаю без ограничений.</div>`;
+        appendAIMessage(welcomeMsg);
+    }
+    
     // ======================= ИНИЦИАЛИЗАЦИЯ =======================
+    // Устанавливаем начального персонажа
+    currentCharacter = straightCharacters[0];
     renderCharacters();
     
     // Назначаем обработчики кнопок
@@ -496,19 +638,32 @@
         if (e.key === 'Enter') handleUserChat();
     });
     
+    // Обработчики переключения режимов
+    document.querySelectorAll('.gender-btn').forEach(btn => {
+        btn.onclick = () => {
+            const gender = btn.dataset.gender;
+            if (gender === "straight") switchGender("straight");
+            if (gender === "gay") switchGender("gay");
+        };
+    });
+    
     // Приветственное сообщение при загрузке
     setTimeout(() => {
-        appendAIMessage(`💋 ${currentCharacter.name} готова. Напиши любое желание:
+        appendAIMessage(`💋 Добро пожаловать в NetErrror Desire Engine.
+        
+Выбери режим:
+• СТРЕЙТ (М+Ж) — девушки
+• ГЕЙ (М+М) — парни
+
+Доступные команды:
 • минет / отсос
-• поза раком / сзади
-• доминирование / госпожа
+• поза раком / сзади / догги
+• доминирование / госпожа / господин
 • анал
-• куни / лизать киску
 • 69
-• ролевая игра
 • кончить / финиш
 
-Я отвечу без границ и предугадаю твои фантазии.`);
+Напиши любое желание — я отвечу жарко и без границ.`);
     }, 500);
     
     // ======================= КОНЕЦ =======================
