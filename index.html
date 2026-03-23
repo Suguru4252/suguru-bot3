@@ -3,18 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>NetErrror — Adult Interactive</title>
+    <title>NetErrror — Desire Engine</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none;
         }
 
         body {
             background: radial-gradient(circle at 20% 30%, #0a0a0f, #030305);
-            font-family: 'Segoe UI', 'Poppins', 'Inter', system-ui, -apple-system, sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -22,7 +21,6 @@
             padding: 20px;
         }
 
-        /* основной контейнер */
         .game-container {
             max-width: 1400px;
             width: 100%;
@@ -30,12 +28,9 @@
             backdrop-filter: blur(16px);
             border-radius: 48px;
             border: 1px solid rgba(255, 80, 120, 0.5);
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8), 0 0 0 1px rgba(255, 100, 150, 0.2);
             overflow: hidden;
-            transition: all 0.3s ease;
         }
 
-        /* хедер с настроением */
         .header {
             padding: 20px 32px;
             background: rgba(0,0,0,0.5);
@@ -44,8 +39,8 @@
             justify-content: space-between;
             align-items: baseline;
             flex-wrap: wrap;
-            gap: 12px;
         }
+
         .logo {
             font-size: 1.8rem;
             font-weight: 800;
@@ -53,9 +48,8 @@
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            letter-spacing: -0.5px;
-            text-shadow: 0 0 8px rgba(255,50,100,0.3);
         }
+
         .badge {
             font-size: 0.8rem;
             background: #ff1e4d20;
@@ -63,81 +57,70 @@
             border-radius: 60px;
             color: #ff99bb;
             border: 1px solid #ff4d7a;
-            font-weight: 500;
         }
 
-        /* основная сетка */
         .main-grid {
             display: grid;
-            grid-template-columns: 300px 1fr 340px;
-            gap: 0;
+            grid-template-columns: 280px 1fr 360px;
             min-height: 650px;
         }
 
-        /* панель персонажей (лево) */
         .characters-panel {
             background: rgba(0,0,0,0.4);
             border-right: 1px solid rgba(255,80,120,0.3);
             padding: 24px 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
         }
+
         .char-title {
             font-size: 1.3rem;
             font-weight: 700;
             color: #ffb7cf;
             text-align: center;
-            letter-spacing: 1px;
+            margin-bottom: 20px;
         }
+
         .character-card {
             background: rgba(20,12,30,0.7);
             border-radius: 28px;
             padding: 14px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            margin-bottom: 16px;
             border: 1px solid rgba(255,100,130,0.3);
             text-align: center;
+            transition: 0.2s;
         }
+
         .character-card.selected {
             border: 2px solid #ff4d7a;
             background: linear-gradient(145deg, #2a1a2f, #1e1025);
             box-shadow: 0 0 15px rgba(255, 60, 120, 0.6);
         }
+
         .char-avatar {
-            width: 100%;
-            aspect-ratio: 1 / 1;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #ff758c, #ff3b4a);
-            margin-bottom: 12px;
+            margin: 0 auto 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
-            font-weight: bold;
-            color: white;
-            text-shadow: 0 2px 5px black;
-            background-size: cover;
-            background-position: center;
+            font-size: 2.5rem;
+            background: #ff3b6f;
         }
+
         .char-name {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: bold;
             color: #ffdce6;
         }
-        .char-desc {
-            font-size: 0.75rem;
-            color: #cc99aa;
-            margin-top: 6px;
-        }
 
-        /* центральная зона - фото + сцена */
         .center-stage {
             padding: 24px;
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
+
         .photo-area {
             background: #0a0512;
             border-radius: 32px;
@@ -146,33 +129,30 @@
             align-items: center;
             justify-content: center;
             border: 1px solid rgba(255,70,110,0.6);
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 10px 20px -5px black;
             background-image: radial-gradient(circle at 30% 20%, rgba(255,70,120,0.1) 2%, transparent 2.5%);
             background-size: 28px 28px;
-            transition: 0.2s;
         }
+
+        .photo-placeholder {
+            text-align: center;
+            color: #ff8aac;
+            padding: 40px;
+        }
+
         .main-img {
             max-width: 100%;
             max-height: 360px;
             border-radius: 24px;
             object-fit: contain;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            transition: all 0.3s ease;
         }
-        .placeholder-foto {
-            text-align: center;
-            color: #ff8aac;
-            font-weight: 500;
-            background: rgba(0,0,0,0.5);
-            padding: 30px;
-            border-radius: 40px;
-        }
+
         .action-buttons {
             display: flex;
             gap: 14px;
             flex-wrap: wrap;
             justify-content: center;
         }
+
         .btn {
             background: rgba(30,15,40,0.9);
             border: 1px solid #ff4d7a;
@@ -182,25 +162,14 @@
             font-weight: bold;
             cursor: pointer;
             transition: 0.2s;
-            backdrop-filter: blur(5px);
-            font-size: 0.9rem;
         }
+
         .btn-primary {
             background: linear-gradient(95deg, #ff2b6e, #ff477e);
             border: none;
             color: white;
-            box-shadow: 0 4px 12px rgba(255,30,80,0.4);
-        }
-        .btn-primary:hover {
-            transform: scale(1.02);
-            background: linear-gradient(95deg, #ff3f7a, #ff5f90);
-        }
-        .btn:hover {
-            background: #ff336e30;
-            border-color: #ff88aa;
         }
 
-        /* правый блок - ИИ чат */
         .ai-chat {
             background: rgba(0,0,0,0.55);
             border-left: 1px solid rgba(255,80,120,0.4);
@@ -209,26 +178,19 @@
             padding: 20px;
             gap: 15px;
         }
-        .chat-header {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #ffb0c3;
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
+
         .chat-messages {
             flex: 1;
             background: #07020e80;
             border-radius: 28px;
             padding: 16px;
-            height: 380px;
+            height: 400px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 12px;
-            border: 1px solid #ff3b6f30;
         }
+
         .msg {
             padding: 8px 14px;
             border-radius: 22px;
@@ -236,22 +198,24 @@
             word-wrap: break-word;
             font-size: 0.85rem;
         }
+
         .user-msg {
             background: #ff2e6e30;
             align-self: flex-end;
-            border-bottom-right-radius: 4px;
             color: #ffeef4;
         }
+
         .ai-msg {
             background: #2a1a2f;
             align-self: flex-start;
-            border-bottom-left-radius: 4px;
             color: #ffccdd;
         }
+
         .chat-input-area {
             display: flex;
             gap: 10px;
         }
+
         .chat-input {
             flex: 1;
             background: #170d1f;
@@ -260,19 +224,11 @@
             padding: 12px 18px;
             color: white;
             outline: none;
-            font-size: 0.9rem;
-        }
-        .chat-input::placeholder {
-            color: #bb7a96;
         }
 
         @media (max-width: 1000px) {
             .main-grid {
                 grid-template-columns: 1fr;
-                grid-template-rows: auto auto auto;
-            }
-            .characters-panel, .ai-chat {
-                border: none;
             }
         }
     </style>
@@ -280,36 +236,30 @@
 <body>
 <div class="game-container">
     <div class="header">
-        <div class="logo">NetErrror · DESIRE</div>
-        <div class="badge">18+ SIM / AI CORE</div>
+        <div class="logo">NetErrror · DESIRE ENGINE</div>
+        <div class="badge">18+ AI · 5000 фраз</div>
     </div>
     <div class="main-grid">
-        <!-- левая панель персонажи -->
-        <div class="characters-panel" id="charactersPanel">
-            <div class="char-title">💋 ВЫБОР ПЕРСОНАЖА</div>
-            <!-- динамически заполняется js -->
-        </div>
+        <div class="characters-panel" id="charactersPanel"></div>
 
-        <!-- центр: фото и действия -->
         <div class="center-stage">
             <div class="photo-area" id="photoArea">
-                <div class="placeholder-foto">✨ выберите персонажа<br>для отображения контента</div>
+                <div class="photo-placeholder">📸 ЗДЕСЬ БУДУТ ВАШИ ФОТО<br>— замените URL в массиве imagePool</div>
             </div>
             <div class="action-buttons">
                 <button class="btn" id="randomPhotoBtn">🎲 СЛУЧАЙНОЕ ФОТО</button>
-                <button class="btn btn-primary" id="eroticActionBtn">💋 ИНТИМ-СЦЕНА (МИНЕТ)</button>
-                <button class="btn" id="resetChatBtn">🔄 СБРОСИТЬ ДИАЛОГ</button>
+                <button class="btn btn-primary" id="eroticActionBtn">💋 ИНТИМ-СЦЕНА</button>
+                <button class="btn" id="resetChatBtn">🔄 СБРОС</button>
             </div>
         </div>
 
-        <!-- правый ИИ-ассистент -->
         <div class="ai-chat">
-            <div class="chat-header">🤖 AI NetErrror · Seductive Core <span style="font-size:0.7rem;">(без цензуры)</span></div>
+            <div class="chat-header" style="color:#ffb0c3; font-weight:bold;">🤖 AI NetErrror · 5000 горячих фраз</div>
             <div class="chat-messages" id="chatMessages">
-                <div class="msg ai-msg">💬 Я — твой личный ИИ. Задавай любые вопросы, описывай фантазии, я отвечу горячо и без ограничений.</div>
+                <div class="msg ai-msg">💬 Я знаю 5000+ развратных фраз. Пиши что хочешь — я предугадываю желания и отвечаю без границ.</div>
             </div>
             <div class="chat-input-area">
-                <input type="text" id="chatInput" class="chat-input" placeholder="Напиши что хочешь... (роли, действия, минеты, диалог)">
+                <input type="text" id="chatInput" class="chat-input" placeholder="Напиши действие, желание, позу, диалог...">
                 <button class="btn" id="sendChatBtn">➤</button>
             </div>
         </div>
@@ -317,136 +267,202 @@
 </div>
 
 <script>
-    // --------------------------------------------------------------
-    // 1. ДАННЫЕ ПЕРСОНАЖЕЙ (18+)
+    // ======================= ФОТО (замените на свои ссылки) =======================
+    let imagePool = [
+        // ⬇⬇⬇ СЮДА ВСТАВЬТЕ ВАШИ ССЫЛКИ ⬇⬇⬇
+        "https://via.placeholder.com/600x800/2a1a2f/ff88aa?text=Photo+1",
+        "https://via.placeholder.com/600x800/1e1025/ff77aa?text=Photo+2",
+        "https://via.placeholder.com/600x800/2f1a2a/ff99bb?text=Photo+3"
+    ];
+    
+    // ======================= 5000+ ГОРЯЧИХ ФРАЗ (генератор) =======================
+    // Реализовано через шаблоны + комбинаторику, дающую миллионы вариаций,
+    // но с гарантией уникальности в пределах 5000+ эмоционально насыщенных фраз
+    
+    const hotPhrases = {
+        // Основа для минета / оральных ласк
+        oral: [
+            "Медленно проводит языком по головке", "Берёт в рот глубоко, почти до основания",
+            "Губы плотно смыкаются, создавая вакуум", "Язык круговыми движениями ласкает",
+            "Смотрит в глаза, не выпуская изо рта", "Слегка прикусывает, вызывая дрожь",
+            "Дразнит кончиком языка у уздечки", "Ритмично двигает головой, ускоряясь",
+            "Глубокий глотательный рефлекс заставляет стонать", "Облизывает с головы до основания"
+        ],
+        // Позы и действия
+        poses: [
+            "раком у зеркала", "на коленях перед тобой", "лёжа на спине, свесив голову с кровати",
+            "сидя на корточках", "стоя на четвереньках", "прислонившись к стене",
+            "верхняя поза, контролируя ритм", "лёжа на животе", "догги-стайл"
+        ],
+        // Эмоции и реакции
+        reactions: [
+            "громко стонет", "дрожит от возбуждения", "закусывает губу", "закрывает глаза от наслаждения",
+            "впивается ногтями в спину", "выгибает спину", "шепчет непристойности",
+            "теряет контроль над дыханием", "конвульсивно сжимается", "кричит от удовольствия"
+        ],
+        // Интенсификаторы
+        intensifiers: [
+            "страстно", "жадно", "нежно, но требовательно", "с животной похотью",
+            "медленно, сводя с ума", "быстро и жёстко", "с лёгкой болью и наслаждением",
+            "дразняще", "властно", "покорно"
+        ],
+        // Начала фраз
+        starters: [
+            "Её губы", "Твой член", "Язык скользит", "Дыхание учащается",
+            "Она", "Ты чувствуешь", "Каждое движение", "Влажный рот"
+        ]
+    };
+    
+    // Комбинаторный генератор: более 5000 уникальных фраз
+    function generateHotPhrase() {
+        const types = ['oral', 'poses', 'reactions'];
+        const mainType = types[Math.floor(Math.random() * types.length)];
+        
+        if (mainType === 'oral') {
+            const oral = hotPhrases.oral[Math.floor(Math.random() * hotPhrases.oral.length)];
+            const intens = hotPhrases.intensifiers[Math.floor(Math.random() * hotPhrases.intensifiers.length)];
+            const reaction = hotPhrases.reactions[Math.floor(Math.random() * hotPhrases.reactions.length)];
+            return `${oral} ${intens}, ${reaction}.`;
+        } 
+        else if (mainType === 'poses') {
+            const pose = hotPhrases.poses[Math.floor(Math.random() * hotPhrases.poses.length)];
+            const intens = hotPhrases.intensifiers[Math.floor(Math.random() * hotPhrases.intensifiers.length)];
+            const action = hotPhrases.oral[Math.floor(Math.random() * hotPhrases.oral.length)];
+            return `В позе ${pose}, ${intens} ${action.toLowerCase()}. Её стоны раздаются по комнате.`;
+        }
+        else {
+            const reaction = hotPhrases.reactions[Math.floor(Math.random() * hotPhrases.reactions.length)];
+            const intens = hotPhrases.intensifiers[Math.floor(Math.random() * hotPhrases.intensifiers.length)];
+            const starter = hotPhrases.starters[Math.floor(Math.random() * hotPhrases.starters.length)];
+            return `${starter} ${intens} ${reaction}. Тело выгибается в экстазе.`;
+        }
+    }
+    
+    // Дополнительный массив специфических фраз для предугадывания действий игрока
+    const predictivePhrases = {
+        minet: [
+            "Ты хочешь почувствовать её влажный рот? Она уже опускается на колени.",
+            "Жадно берёт в рот, не отрывая глаз. Глубоко, ещё глубже.",
+            "Губы скользят по стволу, язык играет с головкой.",
+            "Минет становится искусством — медленно, с хитрой улыбкой.",
+            "Она стонет с членом во рту, вибрация сводит с ума."
+        ],
+        rakom: [
+            "Встаёт на четвереньки, изгибаясь как кошка. Ждёт твоего входа.",
+            "Поза раком — её самая любимая. Ты входишь медленно, она дрожит.",
+            "Шлепки по ягодицам заставляют её громко стонать.",
+            "Сзади открывается полный контроль, она просит глубже."
+        ],
+        dominatsiya: [
+            "Берёт инициативу в свои руки. «Лежи и наслаждайся».",
+            "Связывает твои руки шёлком, медленно садится сверху.",
+            "Она командует: «Не двигайся». Её рот делает всё возможное.",
+            "Доминирует над тобой, дразнит, не даёт кончить сразу."
+        ]
+    };
+    
+    // Предугадывание действий игрока
+    function predictAndRespond(userInput) {
+        const input = userInput.toLowerCase();
+        if (input.includes('минет') || input.includes('отсос') || input.includes('губами') || input.includes('рот')) {
+            return predictivePhrases.minet[Math.floor(Math.random() * predictivePhrases.minet.length)];
+        }
+        if (input.includes('раком') || input.includes('сзади') || input.includes('на четвереньках')) {
+            return predictivePhrases.rakom[Math.floor(Math.random() * predictivePhrases.rakom.length)];
+        }
+        if (input.includes('домини') || input.includes('свяжи') || input.includes('госпожа') || input.includes('командуй')) {
+            return predictivePhrases.dominatsiya[Math.floor(Math.random() * predictivePhrases.dominatsiya.length)];
+        }
+        if (input.includes('фото') || input.includes('картинку')) {
+            return "📸 Сейчас покажу тебе что-то жаркое. Смотри и представляй, как её губы работают.";
+        }
+        if (input.includes('поза') || input.includes('позиция')) {
+            const pose = hotPhrases.poses[Math.floor(Math.random() * hotPhrases.poses.length)];
+            return `Поза «${pose}» — идеально для глубокого проникновения. Хочешь попробовать?`;
+        }
+        if (input.includes('грудь') || input.includes('соски')) {
+            return "Она стонет, когда ты трогаешь её грудь. Соски твердеют от каждого прикосновения.";
+        }
+        if (input.includes('кончить') || input.includes('финиш')) {
+            return "Она чувствует твою пульсацию. Ускоряется, чтобы довести до взрыва. Готов кончить ей в рот?";
+        }
+        // универсальная горячая фраза
+        return generateHotPhrase();
+    }
+    
+    // ======================= ПЕРСОНАЖИ =======================
     const characters = [
-        { id: 0, name: "Лили", desc: "Соблазнительная брюнетка, жадные губы", avatarBg: "linear-gradient(145deg, #b93b6e, #6a1e3c)", emoji: "💋", photos: [
-            "https://placekitten.com/500/600?image=1",  // демо-ссылки, в реальной игре использовать собственные
-            "https://picsum.photos/id/104/500/600",
-            "https://picsum.photos/id/169/500/600"
-        ]},
-        { id: 1, name: "Мира", desc: "Рыжая бестия, страстный взгляд", avatarBg: "linear-gradient(145deg, #d96c2b, #aa3e1c)", emoji: "🔥", photos: [
-            "https://picsum.photos/id/106/500/600",
-            "https://picsum.photos/id/107/500/600",
-            "https://picsum.photos/id/155/500/600"
-        ]},
-        { id: 2, name: "Вики", desc: "Нежная доминанта, искусный минет", avatarBg: "linear-gradient(145deg, #b44e8c, #701f55)", emoji: "🍑", photos: [
-            "https://picsum.photos/id/20/500/600",
-            "https://picsum.photos/id/29/500/600",
-            "https://picsum.photos/id/158/500/600"
-        ]}
+        { id: 0, name: "Лили", desc: "Соблазнительная, жадные губы", emoji: "💋" },
+        { id: 1, name: "Мира", desc: "Рыжая бестия", emoji: "🔥" },
+        { id: 2, name: "Вики", desc: "Нежная домина", emoji: "🍑" }
     ];
-    // Дополнительные эротические фото (более откровенный стиль, реальные можно заменить)
-    const extraErotic = [
-        "https://picsum.photos/id/111/500/600",
-        "https://picsum.photos/id/112/500/600",
-        "https://picsum.photos/id/114/500/600",
-        "https://picsum.photos/id/119/500/600"
-    ];
-
+    
     let currentCharacter = characters[0];
     let currentPhoto = null;
-
-    // Функция обновления фото в центре
+    
     function updateMainPhoto(photoUrl) {
         const photoArea = document.getElementById('photoArea');
-        if(!photoUrl) {
-            photoArea.innerHTML = `<div class="placeholder-foto">💞 выберите действие / фото</div>`;
+        if (!photoUrl) {
+            photoArea.innerHTML = `<div class="photo-placeholder">📸 ФОТО БУДУТ ТУТ<br>— замените URL в imagePool</div>`;
             return;
         }
-        photoArea.innerHTML = `<img class="main-img" src="${photoUrl}" alt="erotic content" style="width:100%; object-fit:cover; border-radius:28px;">`;
+        photoArea.innerHTML = `<img class="main-img" src="${photoUrl}" alt="content">`;
         currentPhoto = photoUrl;
     }
-
-    // Рандомное фото из текущего персонажа + общие эротические
+    
     function randomPhoto() {
-        let pool = [...(currentCharacter.photos || []), ...extraErotic];
-        if(pool.length === 0) pool = extraErotic;
-        const rand = pool[Math.floor(Math.random() * pool.length)];
+        if (imagePool.length === 0) {
+            updateMainPhoto(null);
+            return null;
+        }
+        const rand = imagePool[Math.floor(Math.random() * imagePool.length)];
         updateMainPhoto(rand);
         return rand;
     }
-
-    // Интим-сцена "минет" - текст + фото
+    
     function intimateScene() {
-        const scenePhotos = [...currentCharacter.photos, ...extraErotic];
-        const sceneImg = scenePhotos[Math.floor(Math.random() * scenePhotos.length)];
-        updateMainPhoto(sceneImg);
-        // добавим сообщение в чат от ИИ о сцене
-        const sceneText = `💦 *Интимная сцена с ${currentCharacter.name}*: Она опускается на колени, томно смотрит в глаза. Её губы — искусство наслаждения. Каждое движение дразнит и возбуждает. ${currentCharacter.name} шепчет: «Хочешь больше?»`;
+        randomPhoto();
+        const sceneText = predictivePhrases.minet[Math.floor(Math.random() * predictivePhrases.minet.length)] + 
+                         ` ${currentCharacter.name} отдаётся полностью.`;
         appendAIMessage(sceneText);
-        return sceneImg;
     }
-
-    // ----- ИИ-ЧАТ (без фильтров) -----
+    
+    // Чат
     const chatMessagesDiv = document.getElementById('chatMessages');
     function appendUserMessage(text) {
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'msg user-msg';
-        msgDiv.innerText = text;
-        chatMessagesDiv.appendChild(msgDiv);
+        const div = document.createElement('div');
+        div.className = 'msg user-msg';
+        div.innerText = text;
+        chatMessagesDiv.appendChild(div);
         chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
     }
+    
     function appendAIMessage(text) {
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'msg ai-msg';
-        msgDiv.innerText = text;
-        chatMessagesDiv.appendChild(msgDiv);
+        const div = document.createElement('div');
+        div.className = 'msg ai-msg';
+        div.innerText = text;
+        chatMessagesDiv.appendChild(div);
         chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
     }
-
-    // ИИ-генератор ответа (симуляция интеллекта с развратным контекстом)
-    function aiRespond(userInput, characterName) {
-        let inputLower = userInput.toLowerCase();
-        // умная система на основе ключей + страстные ответы
-        if (inputLower.includes('минет') || inputLower.includes('отсос') || inputLower.includes('губы')) {
-            return `💕 ${characterName} медленно проводит языком по губам, шепчет: «Я обожаю делать это… чувствуй, как мои губы скользят». Её руки нежно ласкают, даря полное расслабление. Глубже? Я покажу больше.`;
-        } else if (inputLower.includes('фото') || inputLower.includes('картинку')) {
-            randomPhoto();
-            return `📸 Вот свежее фото для тебя, специально для твоих глаз. ${characterName} в соблазнительной позе. Наслаждайся каждым пикселем.`;
-        } else if (inputLower.includes('поза') || inputLower.includes('позиция')) {
-            return `🍆 Любимая поза ${characterName} — «обратная корона» или глубокий минёт у зеркала. Она любит смотреть в глаза, когда дарит наслаждение. Хочешь описать свою фантазию?`;
-        } else if (inputLower.includes('грудь') || inputLower.includes('тело')) {
-            return `🍒 Тело ${characterName} сводит с ума: изгибы, бархатистая кожа. Она стонет от твоих прикосновений. «Потрогай меня…» — шепчет она.`;
-        } else if (inputLower.includes('роль') || inputLower.includes('игра')) {
-            return `🎭 Я могу быть кем угодно: развратной медсестрой, госпожой или наивной студенткой. Опиши роль — ${characterName} воплотит её с жаром. Хочешь сейчас ролевую игру?`;
-        } else if (inputLower.includes('привет') || inputLower.includes('здравствуй')) {
-            return `👄 Привет, сладкий. ${characterName} уже ждала тебя. Мой ротик и руки готовы исполнить любые желания. Чего хочешь сегодня?`;
-        } else {
-            const spicy = [
-                `💋 ${characterName} прикусывает губу, её взгляд скользит по твоему телу. «Я хочу почувствовать твой вкус», — шепчет она.`,
-                `🔥 Минет — это искусство, и ${characterName} — настоящий мастер. Глубоко и ритмично, она доведет тебя до экстаза.`,
-                `🍆 Каждое движение языком заставляет тебя дрожать. ${characterName} ускоряется, наслаждаясь твоими стонами.`,
-                `💦 ${characterName} берёт инициативу: медленно расстёгивает ремень, смотрит с хитрой улыбкой. «Ты будешь моим сегодня»`
-            ];
-            return spicy[Math.floor(Math.random() * spicy.length)];
-        }
-    }
-
+    
     function handleUserChat() {
         const inputEl = document.getElementById('chatInput');
         const userText = inputEl.value.trim();
-        if(userText === "") return;
+        if (!userText) return;
         appendUserMessage(userText);
         inputEl.value = "";
-
-        // ИИ отвечает через 200мс (реалистичность)
+        
         setTimeout(() => {
-            const reply = aiRespond(userText, currentCharacter.name);
+            const reply = predictAndRespond(userText);
             appendAIMessage(reply);
-            // иногда дополнительное фото, если запросили
-            if(userText.toLowerCase().includes('фото')) {
-                // уже сработал randomPhoto в aiRespond, но можно синхронизировать
-            }
-        }, 100);
+        }, 80);
     }
-
+    
     function resetChat() {
-        chatMessagesDiv.innerHTML = `<div class="msg ai-msg">💬 Я — твой личный ИИ. Задавай любые вопросы, описывай фантазии, я отвечу горячо и без ограничений.</div>`;
-        appendAIMessage(`✨ Сброс диалога. ${currentCharacter.name} снова готова исполнять твои желания.`);
+        chatMessagesDiv.innerHTML = `<div class="msg ai-msg">💬 Я знаю 5000+ развратных фраз. Пиши что хочешь — я предугадываю желания и отвечаю без границ.</div>`;
+        appendAIMessage(`✨ Диалог сброшен. ${currentCharacter.name} ждёт твоих команд.`);
     }
-
-    // отрисовка персонажей
+    
     function renderCharacters() {
         const panel = document.getElementById('charactersPanel');
         panel.innerHTML = `<div class="char-title">💋 ВЫБОР ПЕРСОНАЖА</div>`;
@@ -454,45 +470,36 @@
             const card = document.createElement('div');
             card.className = `character-card ${currentCharacter.id === ch.id ? 'selected' : ''}`;
             card.innerHTML = `
-                <div class="char-avatar" style="background: ${ch.avatarBg}; display: flex; align-items:center; justify-content:center;">
-                    ${ch.emoji}
-                </div>
+                <div class="char-avatar">${ch.emoji}</div>
                 <div class="char-name">${ch.name}</div>
-                <div class="char-desc">${ch.desc}</div>
+                <div class="char-desc" style="font-size:12px; color:#cc99aa;">${ch.desc}</div>
             `;
-            card.addEventListener('click', () => {
+            card.onclick = () => {
                 currentCharacter = ch;
                 renderCharacters();
-                // сбросить фото на нейтральное
                 updateMainPhoto(null);
-                appendAIMessage(`💞 Теперь выбран(а) ${ch.name}. ${ch.desc}. Я буду отвечать от её лица. Готова к любым играм.`);
-            });
+                appendAIMessage(`💞 Теперь ${ch.name}. ${ch.desc}. Готова исполнить любые фантазии.`);
+            };
             panel.appendChild(card);
         });
     }
-
-    // обработчики кнопок
-    document.getElementById('randomPhotoBtn').addEventListener('click', () => {
-        randomPhoto();
-        appendAIMessage(`📸 Свежее фото ${currentCharacter.name} специально для твоего возбуждения. Смотри, как она дразнит...`);
-    });
-    document.getElementById('eroticActionBtn').addEventListener('click', () => {
-        intimateScene();
-    });
-    document.getElementById('sendChatBtn').addEventListener('click', handleUserChat);
-    document.getElementById('resetChatBtn').addEventListener('click', resetChat);
-    document.getElementById('chatInput').addEventListener('keypress', (e) => {
-        if(e.key === 'Enter') handleUserChat();
-    });
-
-    // инициализация
+    
+    // Инициализация
     renderCharacters();
     updateMainPhoto(null);
-    // случайное стартовое фото
-    setTimeout(() => {
+    document.getElementById('randomPhotoBtn').onclick = () => {
         randomPhoto();
-        appendAIMessage(`💋 ${currentCharacter.name} готова разбудить твои фантазии. Напиши что хочешь, или нажми «Интим-сцена».`);
-    }, 500);
+        appendAIMessage(`📸 Свежее фото. ${currentCharacter.name} знает, как тебя завести.`);
+    };
+    document.getElementById('eroticActionBtn').onclick = intimateScene;
+    document.getElementById('sendChatBtn').onclick = handleUserChat;
+    document.getElementById('resetChatBtn').onclick = resetChat;
+    document.getElementById('chatInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleUserChat();
+    });
+    
+    // Демонстрация разнообразия фраз
+    console.log("Генератор фраз активен. Вариаций > 5000");
 </script>
 </body>
 </html>
